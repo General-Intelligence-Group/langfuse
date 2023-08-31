@@ -261,3 +261,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres DIRECT_URL=p
 ### Run Langfuse in CI for integration tests
 
 Checkout GitHub Actions workflows of [Python SDK](https://github.com/langfuse/langfuse-python/blob/main/.github/workflows/ci.yml) and [JS/TS SDK](https://github.com/langfuse/langfuse-js/blob/main/.github/workflows/ci.yml).
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=langfuse/langfuse&type=Date)](https://star-history.com/#langfuse/langfuse&Date)
