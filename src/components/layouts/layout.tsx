@@ -1,3 +1,4 @@
+"use client"
 import { ROUTES } from "@/src/components/layouts/routes";
 import { Fragment, type PropsWithChildren, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
@@ -106,7 +107,7 @@ export default function Layout(props: PropsWithChildren) {
     <>
       <Head>
         <title>
-          {currentPathName ? `${currentPathName} | Langfuse` : "Langfuse"}
+          {currentPathName ? `${currentPathName} | Prisma` : "Prisma"}
         </title>
       </Head>
       <div>
@@ -164,9 +165,9 @@ export default function Layout(props: PropsWithChildren) {
                   </Transition.Child>
                   {/* Sidebar component, swap this element with another sidebar if you like */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
-                    <div className="flex h-16 shrink-0 items-center font-mono text-xl font-semibold">
-                      🪢 Langfuse
-                    </div>
+                    <Link href="/" className="flex h-16 shrink-0 items-center font-mono text-xl font-semibold">
+                      Prisma
+                    </Link>
                     <nav className="flex flex-1 flex-col">
                       <ul role="list" className="flex flex-1 flex-col gap-y-7">
                         <li>
@@ -268,9 +269,9 @@ export default function Layout(props: PropsWithChildren) {
         <div className="hidden xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
-            <div className="flex h-16 shrink-0 items-center font-mono text-xl font-semibold">
-              🪢 Langfuse
-            </div>
+            <Link href="/" className="flex h-16 shrink-0 items-center font-mono text-xl font-semibold">
+              Prisma
+            </Link>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-4">
                 <li>
@@ -428,9 +429,9 @@ export default function Layout(props: PropsWithChildren) {
             <span className="sr-only">Open sidebar</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
-          <div className="flex-1 font-mono text-sm font-semibold leading-6 text-gray-900">
-            🪢 Langfuse
-          </div>
+          <Link href="/" className="flex-1 font-mono text-sm font-semibold leading-6 text-gray-900">
+            Prisma
+          </Link>
           <Menu as="div" className="relative">
             <Menu.Button className="flex items-center gap-x-4 text-sm font-semibold leading-6 text-gray-900">
               <span className="sr-only">Open user menu</span>
@@ -485,10 +486,10 @@ export default function Layout(props: PropsWithChildren) {
                   <Info className="h-4 w-4" />
                   <span className="font-semibold">DEMO (view-only)</span>
                 </div>
-                <div>Live data from the Langfuse Q&A Chatbot.</div>
+                <div>Live data from the Prisma Q&A Chatbot.</div>
               </div>
               <Button size="sm" variant="ghost" asChild className="ml-2">
-                <Link href="https://langfuse.com/docs/demo" target="_blank">
+                <Link href="https://Prisma.com/docs/demo" target="_blank">
                   Learn more ↗
                 </Link>
               </Button>
