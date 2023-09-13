@@ -1,12 +1,16 @@
-import { lastCharacters } from "@/src/utils/string";
 import { useRouter } from "next/router";
 
 export type TableLinkProps = {
   path: string;
   value: string;
+  truncateAt?: number;
 };
 
-export default function TableLink({ path, value }: TableLinkProps) {
+export default function TableLink({
+  path,
+  value,
+  truncateAt = 7,
+}: TableLinkProps) {
   const router = useRouter();
 
   return (
@@ -18,7 +22,9 @@ export default function TableLink({ path, value }: TableLinkProps) {
           void router.push(path);
         }}
       >
-        ...{lastCharacters(value, 7)}
+        {value.length > truncateAt
+          ? `...${value.substring(value.length - truncateAt)}`
+          : value}
       </button>
     </div>
   );

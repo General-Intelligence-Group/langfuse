@@ -1,7 +1,7 @@
 import {
   FlaskConical,
-  HelpingHand,
   LayoutDashboard,
+  LifeBuoy,
   LineChart,
   ListTree,
   Settings,
@@ -58,8 +58,8 @@ export const ROUTES = [
     icon: Settings,
   },
   {
-    name: "Talk to Us",
-    pathname: "https://office.next-boss.eu/index.php/apps/appointments/pub/e3Hdvp4BAg%3D%3D/form",
-    icon: HelpingHand,
+    name: "Support",
+    pathname: "/project/[projectId]/support",
+    icon: LifeBuoy,
   },
 ];

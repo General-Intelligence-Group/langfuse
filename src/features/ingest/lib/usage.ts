@@ -39,7 +39,7 @@ export function calculateTokenCost(
     totalTokens: Decimal;
     promptTokens: Decimal;
     completionTokens: Decimal;
-  }
+  },
 ): Decimal | undefined {
   const pricing = pricingList.filter((p) => p.modelName === input.model);
 
@@ -57,7 +57,7 @@ export function calculateTokenCost(
 
       const promptPricing = pricing.find((p) => p.tokenType === "PROMPT");
       const completionPricing = pricing.find(
-        (p) => p.tokenType === "COMPLETION"
+        (p) => p.tokenType === "COMPLETION",
       );
 
       if (promptPricing) {
@@ -67,7 +67,7 @@ export function calculateTokenCost(
       if (completionPricing) {
         completionPrice = calculateValue(
           completionPricing.price,
-          input.completionTokens
+          input.completionTokens,
         );
       }
 

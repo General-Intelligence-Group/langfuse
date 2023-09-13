@@ -25,13 +25,13 @@ const GetTracesSchema = z.object({
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   await runMiddleware(req, res, cors);
 
   // CHECK AUTH
   const authCheck = await verifyAuthHeaderAndReturnScope(
-    req.headers.authorization
+    req.headers.authorization,
   );
   if (!authCheck.validKey)
     return res.status(401).json({
@@ -46,7 +46,7 @@ export default async function handler(
         "Trying to create trace, project ",
         authCheck.scope.projectId,
         ", body:",
-        JSON.stringify(req.body, null, 2)
+        JSON.stringify(req.body, null, 2),
       );
 
       const { id, name, metadata, externalId, userId, release, version } =
@@ -152,6 +152,7 @@ export default async function handler(
           FROM "traces" AS t
           LEFT JOIN "observations" AS o ON t.id = o.trace_id
           WHERE t.project_id = ${authCheck.scope.projectId}
+          AND o.project_id = ${authCheck.scope.projectId}
           ${obj.userId ? userCondition : Prisma.empty}
           ${obj.name ? nameCondition : Prisma.empty}
           GROUP BY t.id

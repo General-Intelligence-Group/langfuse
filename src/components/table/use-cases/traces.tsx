@@ -16,6 +16,7 @@ import { type Score } from "@prisma/client";
 import { type ColumnDef } from "@tanstack/react-table";
 import router from "next/router";
 import { useState } from "react";
+import { NumberParam, useQueryParams, withDefault } from "use-query-params";
 
 export type TraceTableRow = {
   id: string;
@@ -47,7 +48,7 @@ export default function TracesTable({
 }: TraceTableProps) {
   const filters = router.query.filter
     ? (JSON.parse(
-        decodeURIComponent(router.query.filter as string)
+        decodeURIComponent(router.query.filter as string),
       ) as TraceFilterInput)
     : {
         scores: null,
@@ -62,6 +63,7 @@ export default function TracesTable({
   const setQueryOptions = (filter?: TraceFilterInput) => {
     filter ? setQuery(filter) : undefined;
     setFilterInParams(filter);
+    setPaginationState({ pageIndex: 0, pageSize: paginationState.pageSize });
   };
 
   const [selectedScore, setSelectedScores] = useState<SelectedScoreFilter>({
@@ -72,10 +74,18 @@ export default function TracesTable({
 
   const [selectedMetadata, setSelectedMetadata] = useState<KeyValue[]>([]);
 
+  const [paginationState, setPaginationState] = useQueryParams({
+    pageIndex: withDefault(NumberParam, 0),
+    pageSize: withDefault(NumberParam, 50),
+  });
+
   const traces = api.traces.all.useQuery({
     ...queryOptions,
+    pageIndex: paginationState.pageIndex,
+    pageSize: paginationState.pageSize,
     projectId,
   });
+  const totalCount = traces.data?.slice(1)[0]?.totalCount ?? 0;
 
   const options = api.traces.availableFilterOptions.useQuery({
     ...queryOptions,
@@ -85,25 +95,19 @@ export default function TracesTable({
   const setFilterInParams = (filter?: TraceFilterInput) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { ...query } = router.query;
-    void router.replace(
-      {
-        pathname: router.pathname,
-        query: {
-          ...query,
-          ...(filter
-            ? { filter: encodeURIComponent(JSON.stringify(filter)) }
-            : {}),
-        },
+    void router.push({
+      pathname: router.pathname,
+      query: {
+        ...query,
+        ...(filter
+          ? { filter: encodeURIComponent(JSON.stringify(filter)) }
+          : {}),
       },
-      undefined,
-      {
-        scroll: false,
-      }
-    );
+    });
   };
 
   const convertToTableRow = (
-    trace: RouterOutput["traces"]["all"][0]
+    trace: RouterOutput["traces"]["all"][0],
   ): TraceTableRow => {
     return {
       id: trace.id,
@@ -122,7 +126,7 @@ export default function TracesTable({
   };
 
   const convertToOptions = (
-    options: RouterOutput["traces"]["availableFilterOptions"]
+    options: RouterOutput["traces"]["availableFilterOptions"],
   ): TableRowOptions[] => {
     return options.map((o) => {
       return {
@@ -200,6 +204,7 @@ export default function TracesTable({
           <TableLink
             path={`/project/${projectId}/users/${value}`}
             value={value}
+            truncateAt={40}
           />
         ) : undefined;
       },
@@ -262,7 +267,7 @@ export default function TracesTable({
           values: queryOptions.metadata,
           removeSelectedValue: (value: KeyValue) => {
             const newValues = selectedMetadata.filter(
-              (v) => v.key !== value.key && v.value !== value.value
+              (v) => v.key !== value.key && v.value !== value.value,
             );
             setQueryOptions({
               ...queryOptions,
@@ -273,7 +278,7 @@ export default function TracesTable({
           updateFunction: (newValue: KeyValue | null) => {
             const mergedValues = newValue
               ? selectedMetadata.filter(
-                  (v) => v.key === newValue.key && v.value === newValue.value
+                  (v) => v.key === newValue.key && v.value === newValue.value,
                 ).length > 0
                 ? selectedMetadata
                 : selectedMetadata.concat(newValue)
@@ -364,6 +369,11 @@ export default function TracesTable({
               }
         }
         options={tableOptions}
+        pagination={{
+          pageCount: Math.ceil(totalCount / 50),
+          onChange: setPaginationState,
+          state: paginationState,
+        }}
       />
     </div>
   );
