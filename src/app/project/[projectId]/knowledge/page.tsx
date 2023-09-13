@@ -25,14 +25,16 @@ export default async function KnowledgePage({
   // console.log(collections, "collections)");
 
   return (
-    <main className="mx-auto max-w-7xl p-6">
-      <CollectionList
-        user={user}
-        lang={lang}
-        knowledge={collections}
-        projectId={projectId}
-      />
-    </main>
+    <>
+      <main className="mx-auto max-w-7xl p-6">
+        <CollectionList
+          user={user}
+          lang={lang}
+          knowledge={collections}
+          projectId={projectId}
+        />
+      </main>
+    </>
   );
 }
 

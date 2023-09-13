@@ -134,6 +134,7 @@ const CollectionMenuBar = ({
           lang={lang}
           availableCollections={availableCollections}
           user={user}
+          setShowAddForm={setShowAddForm}
         />
       )}
     </>

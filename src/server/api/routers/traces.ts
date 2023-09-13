@@ -239,7 +239,8 @@ export const traceRouter = createTRPCRouter({
     }),
 
   byId: protectedProcedure.input(z.string()).query(async ({ input, ctx }) => {
-    const [trace, observations, pricings] = await Promise.all([
+    const [trace, observations] = await Promise.all([
+      // const [trace, observations, pricings] = await Promise.all([
       ctx.prisma.trace.findFirstOrThrow({
         where: {
           id: input,
@@ -270,20 +271,21 @@ export const traceRouter = createTRPCRouter({
           },
         },
       }),
-      ctx.prisma.pricing.findMany(),
+      // ctx.prisma.pricing.findMany(),
     ]);
 
     const enrichedObservations = observations.map((observation) => {
       return {
         ...observation,
-        price: observation.model
-          ? calculateTokenCost(pricings, {
-              model: observation.model,
-              totalTokens: new Decimal(observation.totalTokens),
-              promptTokens: new Decimal(observation.promptTokens),
-              completionTokens: new Decimal(observation.completionTokens),
-            })
-          : undefined,
+        price: undefined,
+        // observation.model
+        // ? calculateTokenCost(pricings, {
+        //     model: observation.model,
+        //     totalTokens: new Decimal(observation.totalTokens),
+        //     promptTokens: new Decimal(observation.promptTokens),
+        //     completionTokens: new Decimal(observation.completionTokens),
+        //   })
+        // : undefined,
       };
     });
 

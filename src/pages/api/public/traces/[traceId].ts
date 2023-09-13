@@ -34,6 +34,8 @@ export default async function handler(
     console.log("Trying to get trace:", req.body, req.query);
 
     const { traceId } = GetTraceSchema.parse(req.query);
+    console.log("authCheck.scope.projectId", authCheck.scope.projectId)
+    console.log("traceId", traceId)
 
     // CHECK ACCESS SCOPE
     if (authCheck.scope.accessLevel !== "all") {
@@ -44,7 +46,6 @@ export default async function handler(
       });
     }
     // END CHECK ACCESS SCOPE
-
     const [trace, observations] = await Promise.all([
       prisma.trace.findFirst({
         where: {

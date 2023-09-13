@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { Dispatch, SetStateAction, useState, useTransition } from "react";
 const knowledgeVisibility = ["public", "paid", "private"];
 import KnowledgeTags from "./KnowledgeTags";
 import { CollectionType } from "chromadb/dist/main/types";
@@ -23,11 +23,13 @@ import { useToast } from "@/src/components/ui/use-toast";
 import { CollectionMetadataSchema } from "@/src/utils/middleware/chroma/collection";
 import { RadioGroup, RadioGroupItem } from "@/src/components/ui/radio-group";
 import { addCollection } from "@/src/utils/actions/collection";
+import { Loader2 } from "lucide-react";
 type Props = {
   lang: Locale;
   availableCollections: CollectionType[];
   user: User | null;
   projectId: string;
+  setShowAddForm: Dispatch<SetStateAction<boolean>>;
 };
 const suggestions = [
   { id: "Vietnam", text: "Vietnam", weight: 0 },
@@ -36,11 +38,54 @@ const suggestions = [
   { id: "India", text: "India" },
 ];
 
-const AddCollection = ({ lang, availableCollections, user, projectId }: Props) => {
+const THRESHOLDS = [
+  "general_distance_threshold",
+  "dob_distance_threshold",
+  "ssn_distance_threshold",
+  "drivers_distance_threshold",
+  "state_id_distance_threshold",
+  "passport_number_distance_threshold",
+  "account_number_distance_threshold",
+  "card_number_distance_threshold",
+  "username_distance_threshold",
+  "email_distance_threshold",
+  "bio_distance_threshold",
+  "medical_distance_threshold",
+  "mrn_distance_threshold",
+  "insurance_distance_threshold",
+] as const;
+const THRESHOLD_VALS = [
+  0.4, 0.4, 0.4, 0.28, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.375, 0.4, 0.29, 0.375,
+] as const;
+const AddCollection = ({
+  lang,
+  availableCollections,
+  user,
+  projectId,
+  setShowAddForm,
+}: Props) => {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof CollectionMetadataSchema>>({
     resolver: zodResolver(CollectionMetadataSchema),
-    defaultValues: { visibility: "private", description: "" },
+    defaultValues: {
+      visibility: "private",
+      description: "",
+      sentenceBatchSize: 7,
+      general_distance_threshold: 0.4,
+      dob_distance_threshold: 0.4,
+      ssn_distance_threshold: 0.4,
+      drivers_distance_threshold: 0.28,
+      state_id_distance_threshold: 0.4,
+      passport_number_distance_threshold: 0.4,
+      account_number_distance_threshold: 0.4,
+      card_number_distance_threshold: 0.4,
+      username_distance_threshold: 0.4,
+      email_distance_threshold: 0.4,
+      bio_distance_threshold: 0.375,
+      medical_distance_threshold: 0.4,
+      mrn_distance_threshold: 0.29,
+      insurance_distance_threshold: 0.375,
+    },
   });
   const knowledgeTags: KnowledgeTag[] = [];
   const [tags, setTags] = useState<KnowledgeTag[]>(knowledgeTags);
@@ -48,16 +93,38 @@ const AddCollection = ({ lang, availableCollections, user, projectId }: Props) =
   const [isPending, startTransition] = useTransition();
   function onSubmit(data: z.infer<typeof CollectionMetadataSchema>) {
     console.log("tags", tags);
+
     const collectionCandidate: CollectionMetadata = {
       ...data,
       owner: JSON.stringify(user),
       publishedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+
       projectId: projectId,
       // tags: tags ? tags : [],
       tags: tags.map((tag) => `${tag.id}:${tag.text}`).join(","),
     };
-    startTransition(() => addCollection(collectionCandidate));
+    startTransition(() =>
+      addCollection(collectionCandidate, data.sentenceBatchSize, [
+        data.general_distance_threshold!,
+        data.dob_distance_threshold!,
+        data.ssn_distance_threshold!,
+        data.drivers_distance_threshold!,
+        data.state_id_distance_threshold!,
+        data.passport_number_distance_threshold!,
+        data.account_number_distance_threshold!,
+        data.card_number_distance_threshold!,
+        data.username_distance_threshold!,
+        data.email_distance_threshold!,
+        data.bio_distance_threshold!,
+        data.medical_distance_threshold!,
+        data.mrn_distance_threshold!,
+        data.insurance_distance_threshold!,
+      ])
+    );
+
+    form.reset();
+    setShowAddForm(false);
     toast({
       title: "You submitted the following values:",
       description: (
@@ -69,7 +136,9 @@ const AddCollection = ({ lang, availableCollections, user, projectId }: Props) =
       ),
     });
   }
-  return (
+  return isPending ? (
+    <Spinner />
+  ) : (
     <Form {...form}>
       <form
         // action={startTransition(form.handleSubmit(onSubmit))}
@@ -125,21 +194,6 @@ const AddCollection = ({ lang, availableCollections, user, projectId }: Props) =
                       //   {category}
                       // </SelectItem>
                     ))}
-
-                    {/* <FormItem className="flex items-center space-x-3 space-y-0">
-            <FormControl>
-              <RadioGroupItem value="mentions" />
-            </FormControl>
-            <FormLabel className="font-normal">
-              Direct messages and mentions
-            </FormLabel>
-          </FormItem>
-          <FormItem className="flex items-center space-x-3 space-y-0">
-            <FormControl>
-              <RadioGroupItem value="none" />
-            </FormControl>
-            <FormLabel className="font-normal">Nothing</FormLabel>
-          </FormItem> */}
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -149,13 +203,71 @@ const AddCollection = ({ lang, availableCollections, user, projectId }: Props) =
         </div>
         <FormField
           control={form.control}
+          name="sentenceBatchSize"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sentence Batch Size</FormLabel>
+              <FormControl>
+                {/* <Input type="number" step={1} max={12} min={1} {...field} /> */}
+                <Input
+                  type="number"
+                  step={1}
+                  max={12}
+                  min={1}
+                  value={field.value || 7} // Ensure it's a string or an empty string if undefined
+                  onChange={(e) => {
+                    // Convert the input value to a number using parseInt
+                    const parsedValue = parseInt(e.target.value, 10);
+                    field.onChange(parsedValue); // Update the field value with the parsed number
+                  }}
+                />
+              </FormControl>
+              <FormDescription />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex flex-wrap gap-2">
+          {THRESHOLDS.map((t, index) => (
+            <FormField
+              control={form.control}
+              key={t}
+              name={t}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t}</FormLabel>
+                  <FormControl>
+                    {/* <Input type="number" step={1} max={12} min={1} {...field} /> */}
+                    <Input
+                      type="number"
+                      step={0.001}
+                      // defaultValue={0.45}
+                      max={1}
+                      min={0}
+                      value={field.value || 0} // Ensure it's a string or an empty string if undefined
+                      onChange={(e) => {
+                        // Convert the input value to a number using parseInt
+                        const parsedValue = parseFloat(e.target.value);
+                        field.onChange(parsedValue); // Update the field value with the parsed number
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
+        </div>
+        <FormField
+          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Beschreibung</FormLabel>
+              <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Kurzbeschreibung (256 Zeichen)"
+                  placeholder="Short description (max. 256 chars)"
                   {...field}
                 />
               </FormControl>
@@ -176,3 +288,11 @@ const AddCollection = ({ lang, availableCollections, user, projectId }: Props) =
 };
 
 export default AddCollection;
+
+function Spinner() {
+  return (
+    <div className="flex h-3/4 items-center justify-center">
+      <Loader2 className="h-full w-full animate-spin" />
+    </div>
+  );
+}

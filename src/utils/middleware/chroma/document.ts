@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { ChromaClient } from "chromadb";
-import { DocumentMetadata } from "@/src/app/[lang]/knowledge/[visibility]/[collectionName]/page";
+// import { DocumentMetadata } from "@/src/app/knowledge/[visibility]/[collectionName]/page";
 import { IncludeEnum, Metadata } from "chromadb/dist/main/types";
+import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
 export const metadataSchema = z.object({
+  source_uuid: z.string(),
   abbreviation: z.string().optional(),
   author: z.string().optional(),
   category: z.string().optional(),
@@ -17,7 +19,7 @@ export const metadataSchema = z.object({
 });
 // Defining Entity with Zod
 export const documentEntitySchema = z.object({
-  //   id: z.string(),
+  source_uuid: z.string(),
   abbreviation: z.string().optional(),
   author: z.string().optional(),
   category: z.string().optional(),
@@ -37,6 +39,7 @@ export type DocumentEntity = DocumentMetadata;
 // Defining Data Transfer Object (DTO) with Zod
 export const documentDTOSchema = z.object({
   //   id: z.string(),
+  source_uuid: documentEntitySchema.shape.source_uuid,
   abbreviation: documentEntitySchema.shape.abbreviation,
   author: documentEntitySchema.shape.author,
   category: documentEntitySchema.shape.category,
@@ -95,6 +98,7 @@ export const DocumentDTO = {
           type: element?.type as string,
           usefulFor: element?.usefulFor as string,
           version: element?.version as string,
+          source_uuid: element?.source_uuid as string,
         };
         const passed = documentDTOSchema.parse(candidate);
         // @ts-ignore TODO fix type error

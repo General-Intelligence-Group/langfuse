@@ -21,7 +21,7 @@ const FragmentList = ({
 }: Props) => {
   const searchString = useKnowledgeStore((state) => state.searchString);
   return (
-    <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+    <section className="flex flex-wrap gap-1 bg-slate-200 m-3">
       {knowledge?.map((fragment, idx) => {
         // if (
         //   searchString &&
@@ -39,10 +39,11 @@ const FragmentList = ({
             key={idx}
             metadata={fragment.metadata}
             lang={lang}
+            id={fragment.metadata.id}
           />
         );
       })}
-    </main>
+    </section>
   );
 };
 

@@ -7,6 +7,7 @@ import { authOptions } from "@/src/server/auth";
 import { connectToVectorStore } from "@/src/utils/middleware/chroma";
 import { CollectionService } from "@/src/utils/middleware/chroma/collection";
 import { DocumentService } from "@/src/utils/middleware/chroma/document";
+import ExtractedPeopleTable from "@/src/app/project/[projectId]/knowledge/[collectionName]/ExtractedPeopleTable";
 
 export interface DocumentMetadata {
   abbreviation: string;
@@ -14,12 +15,17 @@ export interface DocumentMetadata {
   category: string;
   description: string;
   footnotes: string;
+  owner: any;
   publishedAt: string;
+  updatedAt: string;
+  people?: string;
+  semantic_triggers?: string;
   source: string;
   title: string;
   type: string;
   usefulFor: string;
   version: string;
+  source_uuid: string;
 }
 
 const GeneralKnowledgePage = async ({
@@ -49,8 +55,10 @@ const GeneralKnowledgePage = async ({
     redirect(`/knowledge`);
   }
 
+  const extractedPeople = JSON.parse(metadata?.people!) as ExtractedPeople;
+
   return (
-    <article className="mx-auto flex h-full max-w-7xl flex-1 flex-col items-center justify-between gap-5 pt-4">
+    <main className="mx-auto flex h-full max-w-7xl flex-1 flex-col items-center justify-between gap-5 pt-4">
       <CollectionHeader
         collectionName={collectionName}
         user={user}
@@ -58,7 +66,7 @@ const GeneralKnowledgePage = async ({
         lang={lang}
       />
       <section>
-        <h2>Dokumente in Library</h2>
+        <h2>Documents in Dataset</h2>
 
         <CollectionList
           collectionName={collectionName}
@@ -69,10 +77,12 @@ const GeneralKnowledgePage = async ({
           lang={lang}
         />
       </section>
+      {extractedPeople && extractedPeople.length > 0 && <ExtractedPeopleTable people={extractedPeople} />}
+
       {/* <footer>Collection footer</footer> */}
-    </article>
-  );
-};
+    </main>
+  )
+}
 
 export default GeneralKnowledgePage;
 export const dynamic = "force-dynamic";

@@ -1,3 +1,57 @@
+type SemanticTrigger = {
+  title: string;
+  relevance_score: number;
+};
+type IdentifiedPerson = {
+  full_name: {
+    firstname: string;
+    middlenames: string;
+    lastname: string;
+    confidence: number;
+  };
+  data_of_birth?: SemanticTrigger;
+  social_security_number?: SemanticTrigger;
+  // residential_address?: SemanticTrigger;
+  drivers_license_id?: SemanticTrigger;
+  state_id?: SemanticTrigger;
+  passport_number?: SemanticTrigger;
+  financial_account_number?: SemanticTrigger;
+  payment_card_number?: SemanticTrigger;
+  username_and_password?: SemanticTrigger;
+  email_and_password?: SemanticTrigger;
+  biometric_data?: SemanticTrigger;
+  medical_information?: SemanticTrigger;
+  medical_record_number?: SemanticTrigger;
+  health_insurance_info?: SemanticTrigger;
+};
+
+type IdentifiedPeople = IdentifiedPerson[];
+
+type ExtractedPerson = {
+  full_name: {
+    firstname: string;
+    middlenames: string;
+    lastname: string;
+    confidence: number;
+  };
+  data_of_birth?: Record<string, any>[];
+  social_security_number?: Record<string, any>[];
+  // residential_address?: Record<string, any>[];
+  drivers_license_id?: Record<string, any>[];
+  state_id?: Record<string, any>[];
+  passport_number?: Record<string, any>[];
+  financial_account_number?: Record<string, any>[];
+  payment_card_number?: Record<string, any>[];
+  username_and_password?: Record<string, any>[];
+  email_and_password?: Record<string, any>[];
+  biometric_data?: Record<string, any>[];
+  medical_information?: Record<string, any>[];
+  medical_record_number?: Record<string, any>[];
+  health_insurance_info?: Record<string, any>[];
+};
+
+type ExtractedPeople = ExtractedPerson[];
+
 interface Product {
   id?: number;
   product: string;
@@ -147,6 +201,9 @@ type CollectionMetadata = {
   use?: string;
   visibility: KnowledgeCategory | KnowledgeVisibility;
   owner?: string;
+  status?: string;
+  thresholds?: string;
+  sentenceBatchSize?: number;
   image?: string;
   tags?: string;
   publishedAt?: string;

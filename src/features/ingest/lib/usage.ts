@@ -18,8 +18,11 @@ export function tokenCount(p: {
   if (p.model.toLowerCase().startsWith("claude")) {
     return countTokens(p.text);
   }
-  console.log("Unknown model", p.model);
-  return undefined;
+  
+  console.log("Unknown model using default cl100k_base", p.model);
+  if (p.model.toLowerCase().startsWith("gpt")) {
+    return getTokens("cl100k_base", p.text);
+  }
 }
 
 const getTokens = (name: TiktokenEncoding, text: string) => {

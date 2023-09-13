@@ -32,7 +32,24 @@ export const CollectionMetadataSchema = z.object({
   title: z.string(),
   description: z.string().max(256),
   visibility: VisibilitySchema,
+  people: z.string().optional(),
   tags: z.string().optional(),
+  thresholds: z.string().optional(),
+  general_distance_threshold: z.number().min(0).max(1).optional(),
+  dob_distance_threshold: z.number().min(0).max(1).optional(),
+  ssn_distance_threshold: z.number().min(0).max(1).optional(),
+  drivers_distance_threshold: z.number().min(0).max(1).optional(),
+  state_id_distance_threshold: z.number().min(0).max(1).optional(),
+  passport_number_distance_threshold: z.number().min(0).max(1).optional(),
+  account_number_distance_threshold: z.number().min(0).max(1).optional(),
+  card_number_distance_threshold: z.number().min(0).max(1).optional(),
+  username_distance_threshold: z.number().min(0).max(1).optional(),
+  email_distance_threshold: z.number().min(0).max(1).optional(),
+  bio_distance_threshold: z.number().min(0).max(1).optional(),
+  medical_distance_threshold: z.number().min(0).max(1).optional(),
+  mrn_distance_threshold: z.number().min(0).max(1).optional(),
+  insurance_distance_threshold: z.number().min(0).max(1).optional(),
+  sentenceBatchSize: z.number().min(1).max(12).optional(),
   owner: z.string().optional(),
   image: z.string().optional(),
   publishedAt: z.string().optional(),
@@ -48,19 +65,6 @@ export const collectionEntitySchema = z.object({
 });
 
 // // Defining Entity with Zod
-// export const collectionEntitySchema = z.object({
-//   id: z.string(),
-//   name: z.string(),
-//   metadata: z
-//     .object({
-//       title: z.string(),
-//       visibility: z.string(),
-//       description: z.string(),
-//       use: z.string(),
-//     })
-//     .nullable(),
-// });
-
 export type CollectionEntity = z.infer<typeof collectionEntitySchema>;
 
 // Defining Data Transfer Object (DTO) with Zod

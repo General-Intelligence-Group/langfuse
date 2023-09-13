@@ -7,19 +7,34 @@ import { randomUUID } from "crypto";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/server/auth";
 
-export async function addCollection(metadata: CollectionMetadata) {
-  const client = connectToVectorStore();
-  await client.createCollection({
-    name: randomUUID(),
-    metadata,
-  });
+export async function addCollection(
+  metadata: CollectionMetadata,
+  thresholds: number[],
+  sentenceBatchSize?: number
+) {
+  console.log("Server action addCollection ... ", thresholds);
+  // const client = connectToVectorStore();
+  // await client.createCollection({
+  //   name: randomUUID(),
+  //   metadata,
+  // });
+  if (
+    !metadata ||
+    !metadata?.projectId ||
+    !metadata?.title ||
+    !metadata?.visibility ||
+    !metadata?.description
+  )
+    return;
   let headersList = {
     "Content-Type": "application/json",
   };
   const session = await getServerSession(authOptions);
-
+  const knowledgeSetId = randomUUID();
   let bodyContent = JSON.stringify({
-    model: "platypus2-13b",
+    // model: "gpt-3",
+    model: "gpt-4",
+    // model: "gpt-3.5-turbo-0613",
     share:
       "https://drive.google.com/drive/folders/1mkW3UBDNHJlYWKS3GI2s16cjxsryGj5m?usp=sharing",
     project: metadata.projectId,
@@ -27,17 +42,35 @@ export async function addCollection(metadata: CollectionMetadata) {
     title: metadata.title,
     description: metadata.description,
     visibility: metadata.visibility,
-    lf_pub: "pk-lf-df819d99-c25e-4ec8-a1c4-2c09cad07cea",
-    lf_priv: "sk-lf-47dae097-66c6-4a2a-ab37-0b34c9d466f4",
+    session_id: knowledgeSetId,
+    lf_priv: "sk-lf-c5ed31ba-4100-4e7e-88ab-5c4c4894db8b",
+    lf_pub: "pk-lf-679904c1-33aa-46a4-b337-1c06e444ae26",
+    sentence_batch_size: sentenceBatchSize || 7,
+    dob_distance_threshold: thresholds[1] || 0.375,
+    ssn_distance_threshold: thresholds[2] || 0.375,
+    drivers_distance_threshold: thresholds[3] || 0.29,
+    state_id_distance_threshold: thresholds[4] || 0.375,
+    passport_number_distance_threshold: thresholds[5] || 0.375,
+    account_number_distance_threshold: thresholds[6] || 0.375,
+    card_number_distance_threshold: thresholds[7] || 0.375,
+    username_distance_threshold: thresholds[8] || 0.375,
+    email_distance_threshold: thresholds[9] || 0.375,
+    bio_distance_threshold: thresholds[10] || 0.375,
+    medical_distance_threshold: thresholds[11] || 0.375,
+    mrn_distance_threshold: thresholds[12] || 0.29,
+    insurance_distance_threshold: thresholds[13] || 0.375,
   });
 
-  fetch("http://api:80/memory/graph", {
+  fetch("http://api:80/ingest/data", {
     method: "POST",
     body: bodyContent,
     headers: headersList,
   });
+  // .then((response) => console.log(response))
+  //     .catch((err) => `ERROR ingesting data for project ${metadata.projectId}. MESSAGE: ${console.log(err)}`);
 
-  revalidatePath("/");
+  revalidatePath(`/project/${metadata.projectId}/knowledge/`);
+  revalidatePath(`/project/${metadata.projectId}/knowledge/${knowledgeSetId}`);
 }
 
 export async function copyCollection(

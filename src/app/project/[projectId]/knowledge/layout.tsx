@@ -46,7 +46,7 @@ export default async function Root({
         user={user}
         projectId={projectId}
       />
-      <div className="w-full flex-1">{children}</div>;
+      <div className="w-full flex-1">{children}</div>
     </div>
   );
 }

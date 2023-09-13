@@ -1,59 +1,76 @@
 import { z } from "zod";
 import { ChromaClient } from "chromadb";
-// import { DocumentMetadata } from "@/src/app/[lang]/knowledge/[visibility]/[collectionName]/page";
+
+// "subject": subject,
+// "n_token": n_token,
+// "n_char": len(document_content),
+//   "lang": json.dumps(doc_langs[0]),
+
 import { IncludeEnum, Metadata } from "chromadb/dist/main/types";
 import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
 export const fragmentMetadataSchema = z.object({
-  abbreviation: z.string(),
   author: z.string().optional(),
-  category: z.string().optional(),
-  chapter: z.string().optional(),
-  paragraph: z.string().optional(),
-  description: z.string().optional(),
-  footnotes: z.string().optional(),
-  publishedAt: z.string().optional(),
+  file_directory: z.string().optional(),
+  subject: z.string().optional(),
+  n_token: z.string().optional(),
+  n_char: z.string().optional(),
+  lang: z.string().optional(),
+  filename: z.string().optional(),
+  last_modified: z.string().optional(),
+  people: z.string().optional(),
+  semantic_triggers: z.string().optional(),
   source: z.string(),
+  id: z.string(),
+  source_uuid: z.string(),
   title: z.string(),
-  type: z.string().optional(),
-  usefulFor: z.string().optional(),
-  version: z.string(),
+  filetype: z.string().optional(),
+  sent_from: z.string().optional(),
+  sent_to: z.string(),
 });
 export type FragmentMetadataEntity = z.infer<typeof fragmentMetadataSchema>;
 
 export const fragmentSchema = z.object({
   metadata: z.object({
-    abbreviation: z.string(),
     author: z.string().optional(),
-    category: z.string().optional(),
-    chapter: z.string().optional(),
-    paragraph: z.string().optional(),
-    description: z.string().optional(),
-    footnotes: z.string().optional(),
-    publishedAt: z.string().optional(),
+    file_directory: z.string().optional(),
+    subject: z.string().optional(),
+    n_token: z.string().optional(),
+    n_char: z.string().optional(),
+    lang: z.string().optional(),
+    filename: z.string().optional(),
+    last_modified: z.string().optional(),
+    source_uuid: z.string(),
     source: z.string(),
+    people: z.string().optional(),
+    semantic_triggers: z.string().optional(),
+    id: z.string(),
     title: z.string(),
-    type: z.string().optional(),
-    usefulFor: z.string().optional(),
-    version: z.string(),
+    filetype: z.string().optional(),
+    sent_from: z.string().optional(),
+    sent_to: z.string(),
   }),
   pageContent: z.string(),
 });
 // Defining Entity with Zod
 export const fragmentEntitySchema = z.object({
   metadata: z.object({
-    abbreviation: z.string(),
     author: z.string().optional(),
-    category: z.string().optional(),
-    chapter: z.string().optional(),
-    paragraph: z.string().optional(),
-    description: z.string().optional(),
-    footnotes: z.string().optional(),
-    publishedAt: z.string().optional(),
+    file_directory: z.string().optional(),
+    subject: z.string().optional(),
+    n_token: z.string().optional(),
+    n_char: z.string().optional(),
+    lang: z.string().optional(),
+    filename: z.string().optional(),
+    last_modified: z.string().optional(),
+    source_uuid: z.string(),
+    people: z.string().optional(),
+    semantic_triggers: z.string().optional(),
+    id: z.string(),
     source: z.string(),
     title: z.string(),
-    type: z.string().optional(),
-    usefulFor: z.string().optional(),
-    version: z.string(),
+    filetype: z.string().optional(),
+    sent_from: z.string().optional(),
+    sent_to: z.string(),
   }),
   pageContent: z.string(),
 });
@@ -102,11 +119,12 @@ type FindProps = {
 };
 type GetProps = {
   collectionName: string;
-  title: string;
-  author: string;
-  source: string;
+  title?: string;
+  author?: string;
+  source?: string;
   offset?: number;
   limit?: number;
+  source_uuid: string;
 };
 
 export class FragmentService {
@@ -126,6 +144,7 @@ export class FragmentService {
     source,
     limit,
     offset,
+    source_uuid,
   }: GetProps): Promise<FragmentDTO[] | null> {
     // console.log("Getting Fragments ... ");
     // console.log("collectionName: ", collectionName);
@@ -140,7 +159,7 @@ export class FragmentService {
 
     const { metadatas, documents, error } = await collection.get({
       where: {
-        title,
+        source_uuid,
         // $and: [
         //   { source: { $eq: source } },
         //   { author: { $eq: author } },
@@ -210,16 +229,18 @@ export class FragmentService {
     name,
     title,
     author,
-    version,
-    publishedAt,
+    sent_to,
+    last_modified,
   }: {
     name: string;
     title: string;
     author: string;
-    version: string;
-    publishedAt: string;
+    sent_to: string;
+    last_modified: string;
   }): Promise<void> {
     const collection = await this.getDocumentsCollection({ name });
-    await collection.delete({ where: { version, author, title, publishedAt } });
+    await collection.delete({
+      where: { sent_to, author, title, last_modified },
+    });
   }
 }

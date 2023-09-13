@@ -153,21 +153,6 @@ const EditCollection = ({ metadata, lang, collectionName }: Props) => {
                       //   {category}
                       // </SelectItem>
                     ))}
-
-                    {/* <FormItem className="flex items-center space-x-3 space-y-0">
-            <FormControl>
-              <RadioGroupItem value="mentions" />
-            </FormControl>
-            <FormLabel className="font-normal">
-              Direct messages and mentions
-            </FormLabel>
-          </FormItem>
-          <FormItem className="flex items-center space-x-3 space-y-0">
-            <FormControl>
-              <RadioGroupItem value="none" />
-            </FormControl>
-            <FormLabel className="font-normal">Nothing</FormLabel>
-          </FormItem> */}
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -192,25 +177,7 @@ const EditCollection = ({ metadata, lang, collectionName }: Props) => {
             </FormItem>
           )}
         />
-        {/* <FormField
-          control={form.control}
-          name="use"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Verwendung</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Mögliche Anwendungsfälle" {...field} />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-        {/* <KnowledgeTags
-          suggestions={suggestions}
-          tags={tags}
-          setTags={setTags}
-        /> */}
+
         <Button type="submit">Submit</Button>
       </form>
     </Form>

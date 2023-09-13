@@ -30,7 +30,7 @@ const DeleteCollectionButton = ({ collectionName }: Props) => {
     <Button
       type="button"
       disabled={isPending}
-      className="absolute right-2 top-2 rounded-full border p-2 hover:text-red-500"
+      className="rounded-full border p-2 hover:text-red-500"
       onClick={async (e) => {
         await deleteCollectionMutation();
       }}

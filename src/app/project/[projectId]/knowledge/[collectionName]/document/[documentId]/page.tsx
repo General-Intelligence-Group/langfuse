@@ -1,7 +1,13 @@
-
 import { connectToVectorStore } from "@/src/utils/middleware/chroma";
-import FragmentList from "../FragmentList";
-import { FragmentService } from "@/src/utils/middleware/chroma/fragment";
+import FragmentList from "../../FragmentList";
+import {
+  FragmentDTO,
+  FragmentMetadataEntity,
+  FragmentService,
+} from "@/src/utils/middleware/chroma/fragment";
+import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
+import { Badge } from "@/src/components/ui/badge";
+import DocumentHeader from "@/src/app/project/[projectId]/knowledge/[collectionName]/document/[documentId]/DocumentHeader";
 
 type Props = {
   searchParams?: {
@@ -15,13 +21,16 @@ type Props = {
 // console.log("searchParams", searchParams);
 const KnowledgeDocumentPage = async ({
   params,
-  searchParams,
 }: {
-  params: { collectionName: string; visibility: string; lang: Locale };
-  searchParams: { author: string; title: string; source: string };
+  params: {
+    documentId: string;
+    collectionName: string;
+    visibility: string;
+    lang: Locale;
+  };
+  // searchParams: { author: string; title: string; source: string };
 }) => {
-  const { visibility, collectionName, lang } = params;
-  const { author, title, source } = searchParams;
+  const { visibility, collectionName, lang, documentId } = params;
   // console.log("visibility:=", visibility);
   // console.log("params:=", params);
   // console.log("searchParams", searchParams);
@@ -29,14 +38,20 @@ const KnowledgeDocumentPage = async ({
   const fragService = new FragmentService(vecStoreClient);
   const fragments = await fragService.getFragments({
     collectionName,
-    author,
-    title,
-    source,
+    source_uuid: documentId,
   });
   console.log("fragments: ", fragments);
+  let metadata: FragmentMetadataEntity | undefined = undefined;
+  
+  
+  if (fragments && fragments.length > 0) {
+    metadata = fragments[0]?.metadata;
+    
+  }
+
   return (
-    <main className="max-w-7xl mx-auto">
-      {/* <pre>{JSON.stringify(fragments, null, 2)}</pre> */}
+    <main className="mx-auto max-w-7xl">
+      <DocumentHeader metadata={metadata} />
       {fragments && (
         <FragmentList
           collectionName={collectionName}
