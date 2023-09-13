@@ -75,6 +75,7 @@ model VerificationToken {
 model Project {
     id           String        @id @default(cuid())
     createdAt    DateTime      @default(now()) @map("created_at")
+    updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at")
     name         String
     members      Membership[]
     traces       Trace[]
@@ -88,7 +89,7 @@ model ApiKey {
     id               String    @id @unique @default(cuid())
     createdAt        DateTime  @default(now()) @map("created_at")
     note             String?
-    publishableKey   String    @unique @map("publishable_key")
+    publicKey        String    @unique @map("public_key")
     hashedSecretKey  String    @unique @map("hashed_secret_key")
     displaySecretKey String    @map("display_secret_key")
     lastUsedAt       DateTime? @map("last_used_at")
@@ -221,4 +222,12 @@ model Pricing {
     tokenType   TokenType   @map("token_type")
 
     @@map("pricings")
+}
+
+model CronJobs {
+    name    String    @id
+    lastRun DateTime? @map("last_run")
+    state   String?
+
+    @@map("cron_jobs")
 }

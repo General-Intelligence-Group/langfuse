@@ -11,13 +11,13 @@ const GetUsersSchema = z.object({
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   await runMiddleware(req, res, cors);
 
   // CHECK AUTH
   const authCheck = await verifyAuthHeaderAndReturnScope(
-    req.headers.authorization
+    req.headers.authorization,
   );
   if (!authCheck.validKey)
     return res.status(401).json({
@@ -53,7 +53,8 @@ export default async function handler(
               traces t
             LEFT JOIN observations o ON o.trace_id = t.id
             WHERE o.start_time IS NOT NULL
-            AND project_id = ${authCheck.scope.projectId}
+            AND o.project_id = ${authCheck.scope.projectId}
+            AND t.project_id = ${authCheck.scope.projectId}
             GROUP BY 1,2,3
             order by 1,2 desc,3
           ),

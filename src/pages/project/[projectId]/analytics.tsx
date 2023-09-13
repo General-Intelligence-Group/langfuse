@@ -1,6 +1,5 @@
 import Header from "@/src/components/layouts/header";
 import { useRouter } from "next/router";
-import { FeatureFlagToggle } from "@/src/features/featureFlags/components/FeatureFlagToggle";
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { Construction } from "lucide-react";
 import {
@@ -16,20 +15,24 @@ import {
   CardDescription,
   CardContent,
 } from "@/src/components/ui/card";
-import { useEffect, useState } from "react";
+import { openChat } from "@/src/features/support-chat/chat";
+import { StringParam, useQueryParam, withDefault } from "use-query-params";
 
 export default function AnalyticsPage() {
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
+  const analyticsEnabled =
+    process.env.NEXT_PUBLIC_HOSTNAME === "cloud.langfuse.com";
+
   return (
     <div className="md:container">
       <Header title="Analytics" />
-      <FeatureFlagToggle
-        featureFlag="analytics-alpha"
-        whenDisabled={<AnalyticsDisabled />}
-        whenEnabled={<DashboardEmbed projectId={projectId} />}
-      />
+      {analyticsEnabled ? (
+        <DashboardEmbed projectId={projectId} />
+      ) : (
+        <AnalyticsDisabled />
+      )}
     </div>
   );
 }
@@ -37,19 +40,11 @@ export default function AnalyticsPage() {
 const AnalyticsDisabled = () => (
   <Alert>
     <Construction className="h-4 w-4" />
-    <AlertTitle>Analytics is in closed alpha</AlertTitle>
+    <AlertTitle>Analytics alpha is only available on Langfuse Cloud</AlertTitle>
     <AlertDescription>
-      <span>
-        Read more about langfuse Analytics on langfuse.com. Reach out if you are
-        interested in joining the closed alpha or have specific analytics needs.
-      </span>
-      {process.env.NEXT_PUBLIC_HOSTNAME !== "cloud.langfuse.com" ? (
-        <span>
-          <br />
-          During the alpha, Analytics is only available for langfuse cloud
-          users.
-        </span>
-      ) : null}
+      While we are in the alpha phase, Analytics is only available for Langfuse
+      Cloud users as we use Looker to power the dashboards. An open source
+      version is work in progress.
     </AlertDescription>
   </Alert>
 );
@@ -71,44 +66,56 @@ const dashboards = [
     dashboardProjectUrl: (projectId: string) =>
       `https://lookerstudio.google.com/embed/reporting/826764d4-bf63-41d1-b461-fb791f0f0164/page/p_vf8v1b227c?params=%7B%22df5%22:%22include%25EE%2580%25800%25EE%2580%2580IN%25EE%2580%2580${projectId}%22%7D`,
   },
+  {
+    title: "Scores",
+    description:
+      "Break down of scores by releases, versions, trace/observation types.",
+    dashboardUrl:
+      "https://lookerstudio.google.com/embed/reporting/94b1c194-7982-4e55-bd72-70eb01eafde8/page/ruJcD",
+    dashboardProjectUrl: (projectId: string) =>
+      `https://lookerstudio.google.com/embed/reporting/94b1c194-7982-4e55-bd72-70eb01eafde8/page/ruJcD?params=%7B%22df12%22:%22include%25EE%2580%25800%25EE%2580%2580IN%25EE%2580%2580${projectId}%22,%22df11%22:%22include%25EE%2580%25800%25EE%2580%2580IN%25EE%2580%2580${projectId}%22%7D`,
+  },
 ] as const;
 
 const DashboardEmbed = (props: { projectId: string }) => {
-  const router = useRouter();
-  const initialTab = router.query.dashboard as string | undefined;
-  const [activeTab, setActiveTab] = useState(initialTab || dashboards[0].title);
-
-  const handleTabChange = (value: string) => {
-    //update the state
-    setActiveTab(value);
-    // update the URL query parameter
-    void router.push({
-      query: { dashboard: value },
-      pathname: window.location.pathname,
-    });
-  };
-
-  // if the query parameter changes, update the state
-  useEffect(() => {
-    setActiveTab(router.query.dashboard as string);
-  }, [router.query.dashboard]);
+  const [dashboard, setDashboard] = useQueryParam(
+    "dashboard",
+    withDefault(StringParam, dashboards[0].title),
+  );
 
   return (
     <>
       <Alert>
         <Construction className="h-4 w-4" />
-        <AlertTitle>You are part of the closed alpha</AlertTitle>
-        <AlertDescription>
-          Please reach out if you have any problems or additional analytics
-          needs. If you cannot access the Looker-powered dashboards, signing
-          into your Google Account on another tab might help. A version for
-          smaller screens is not yet available.
+        <AlertTitle>Analytics is in alpha</AlertTitle>
+        <AlertDescription className="mt-2">
+          Limitations:
+          <ul className="mb-2 list-inside list-disc">
+            <li>
+              During the alpha we use Looker to power the dashboards. An open
+              source version is work in progress.
+            </li>
+            <li>
+              Looker requires to be signed in with a Google Account with the
+              same email address as your Langfuse account.
+            </li>
+            <li>
+              At times, high traffic may cause the dashboards to load slowly.
+            </li>
+            <li>Not optimized for mobile screens.</li>
+          </ul>
+          If you run into any issues, please let us know. We are adding new
+          dashboards on an ongoing bases. Reach out to us via{" "}
+          <a href="#" onClick={() => openChat()} className="underline">
+            chat
+          </a>{" "}
+          to request any additional charts.
         </AlertDescription>
       </Alert>
       <Tabs
         defaultValue={dashboards[0].title}
-        value={activeTab}
-        onValueChange={handleTabChange}
+        value={dashboard}
+        onValueChange={setDashboard}
         className="pt-10"
       >
         <TabsList>

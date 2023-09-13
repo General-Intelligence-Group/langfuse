@@ -26,6 +26,8 @@ const TraceFilterOptions = z.object({
   metadata: z
     .array(z.object({ key: z.string(), value: z.string() }))
     .nullable(),
+  pageIndex: z.number().int().gte(0).nullable().default(0),
+  pageSize: z.number().int().gte(0).lte(100).nullable().default(50),
 });
 
 export const traceRouter = createTRPCRouter({
@@ -34,7 +36,7 @@ export const traceRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const metadataCondition = input.metadata
         ? input.metadata.map(
-            (m) => Prisma.sql`AND t."metadata"->>${m.key} = ${m.value}`
+            (m) => Prisma.sql`AND t."metadata"->>${m.key} = ${m.value}`,
           )
         : undefined;
 
@@ -88,6 +90,7 @@ export const traceRouter = createTRPCRouter({
             promptTokens: number;
             completionTokens: number;
             totalTokens: number;
+            totalCount: number;
           }
         >
       >(Prisma.sql`
@@ -108,7 +111,8 @@ export const traceRouter = createTRPCRouter({
         t."metadata" AS "metadata",
         COALESCE(u."promptTokens", 0)::int AS "promptTokens",
         COALESCE(u."completionTokens", 0)::int AS "completionTokens",
-        COALESCE(u."totalTokens", 0)::int AS "totalTokens"
+        COALESCE(u."totalTokens", 0)::int AS "totalTokens",
+        (count(*) OVER())::int AS "totalCount"
       FROM "traces" AS t
       LEFT JOIN usage AS u ON u.trace_id = t.id
       WHERE 
@@ -119,7 +123,8 @@ export const traceRouter = createTRPCRouter({
         ${scoreCondition}
         ${joinedMetadataCondition}
       ORDER BY t."timestamp" DESC
-      LIMIT 50;
+      LIMIT ${input.pageSize ?? 50}
+      OFFSET ${(input.pageIndex ?? 0) * (input.pageSize ?? 50)};
     `);
 
       const scores = traces.length
@@ -131,8 +136,8 @@ export const traceRouter = createTRPCRouter({
             s."observation_id" AS "observationId"
           FROM "scores" s
           WHERE s."trace_id" IN (${Prisma.join(
-            traces.map((trace) => trace.id)
-          )})`
+            traces.map((trace) => trace.id),
+          )})`,
           )
         : [];
 
