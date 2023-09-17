@@ -35,7 +35,6 @@ const CollectionMenuBar = ({
   projectId,
 }: Props) => {
   const [showAddForm, setShowAddForm] = useState(false);
-  console.log("collectionName: ", collectionName);
   return (
     <>
       <Menubar>

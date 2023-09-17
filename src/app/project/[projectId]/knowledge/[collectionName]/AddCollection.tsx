@@ -54,9 +54,8 @@ const THRESHOLDS = [
   "mrn_distance_threshold",
   "insurance_distance_threshold",
 ] as const;
-const THRESHOLD_VALS = [
-  0.4, 0.4, 0.4, 0.28, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.375, 0.4, 0.29, 0.375,
-] as const;
+const GENERATION_MODELS = ["gpt-4", "gpt-3", "platypus2-13b"];
+const EMBEDDING_MODELS = ["openai", "local"];
 const AddCollection = ({
   lang,
   availableCollections,
@@ -70,21 +69,38 @@ const AddCollection = ({
     defaultValues: {
       visibility: "private",
       description: "",
-      sentenceBatchSize: 7,
-      general_distance_threshold: 0.4,
-      dob_distance_threshold: 0.4,
-      ssn_distance_threshold: 0.4,
-      drivers_distance_threshold: 0.28,
-      state_id_distance_threshold: 0.4,
-      passport_number_distance_threshold: 0.4,
-      account_number_distance_threshold: 0.4,
-      card_number_distance_threshold: 0.4,
-      username_distance_threshold: 0.4,
-      email_distance_threshold: 0.4,
-      bio_distance_threshold: 0.375,
-      medical_distance_threshold: 0.4,
-      mrn_distance_threshold: 0.29,
-      insurance_distance_threshold: 0.375,
+      sentenceBatchSize: 9,
+      ident_model: "gpt-4",
+      extract_model: "gpt-4",
+      embedding_model: "openai",
+      general_distance_threshold: 0.3,
+      dob_distance_threshold: 0.5,
+      ssn_distance_threshold: 0.42,
+      drivers_distance_threshold: 0.35,
+      state_id_distance_threshold: 0.35,
+      passport_number_distance_threshold: 0.35,
+      account_number_distance_threshold: 0.35,
+      card_number_distance_threshold: 0.35,
+      username_distance_threshold: 0.35,
+      email_distance_threshold: 0.35,
+      bio_distance_threshold: 0.35,
+      medical_distance_threshold: 0.35,
+      mrn_distance_threshold: 0.35,
+      insurance_distance_threshold: 0.35,
+      // general_distance_threshold: 0.4,
+      // dob_distance_threshold: 0.45,
+      // ssn_distance_threshold: 0.425,
+      // drivers_distance_threshold: 0.28,
+      // state_id_distance_threshold: 0.425,
+      // passport_number_distance_threshold: 0.425,
+      // account_number_distance_threshold: 0.425,
+      // card_number_distance_threshold: 0.425,
+      // username_distance_threshold: 0.325,
+      // email_distance_threshold: 0.325,
+      // bio_distance_threshold: 0.4,
+      // medical_distance_threshold: 0.425,
+      // mrn_distance_threshold: 0.29,
+      // insurance_distance_threshold: 0.4,
     },
   });
   const knowledgeTags: KnowledgeTag[] = [];
@@ -105,22 +121,34 @@ const AddCollection = ({
       tags: tags.map((tag) => `${tag.id}:${tag.text}`).join(","),
     };
     startTransition(() =>
-      addCollection(collectionCandidate, data.sentenceBatchSize, [
-        data.general_distance_threshold!,
-        data.dob_distance_threshold!,
-        data.ssn_distance_threshold!,
-        data.drivers_distance_threshold!,
-        data.state_id_distance_threshold!,
-        data.passport_number_distance_threshold!,
-        data.account_number_distance_threshold!,
-        data.card_number_distance_threshold!,
-        data.username_distance_threshold!,
-        data.email_distance_threshold!,
-        data.bio_distance_threshold!,
-        data.medical_distance_threshold!,
-        data.mrn_distance_threshold!,
-        data.insurance_distance_threshold!,
-      ])
+      addCollection(
+        collectionCandidate,
+        [
+          data.general_distance_threshold!,
+          data.dob_distance_threshold!,
+          data.ssn_distance_threshold!,
+          data.drivers_distance_threshold!,
+          data.state_id_distance_threshold!,
+          data.passport_number_distance_threshold!,
+          data.account_number_distance_threshold!,
+          data.card_number_distance_threshold!,
+          data.username_distance_threshold!,
+          data.email_distance_threshold!,
+          data.bio_distance_threshold!,
+          data.medical_distance_threshold!,
+          data.mrn_distance_threshold!,
+          data.insurance_distance_threshold!,
+        ],
+        data.sentenceBatchSize,
+        [
+          data.ident_model === "platypus2-13b"
+            ? "gpt-3.5-turbo-0613"
+            : data.ident_model!,
+          data.extract_model === "platypus2-13b"
+            ? "gpt-3.5-turbo-0613"
+            : data.extract_model!,
+        ],
+      ),
     );
 
     form.reset();
@@ -147,7 +175,7 @@ const AddCollection = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto w-2/3 space-y-6"
       >
-        <div className="flex flex-col justify-between gap-2 md:flex-row">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="title"
@@ -168,6 +196,25 @@ const AddCollection = ({
           />
           <FormField
             control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Short description (max. 256 chars)"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+          <FormField
+            control={form.control}
             name="visibility"
             render={({ field }) => (
               <FormItem className="space-y-3">
@@ -176,7 +223,7 @@ const AddCollection = ({
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    className="flex flex-col space-y-1 md:flex-row"
+                    className="flex flex-col space-y-1 md:flex-col"
                   >
                     {knowledgeVisibility.map((category) => (
                       <FormItem
@@ -200,34 +247,122 @@ const AddCollection = ({
               </FormItem>
             )}
           />
+              <FormField
+            control={form.control}
+            name="embedding_model"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Embedding Model</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1 md:flex-col"
+                  >
+                    {EMBEDDING_MODELS.map((model) => (
+                      <FormItem
+                        key={model}
+                        className="flex items-center space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <RadioGroupItem value={model} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{model}</FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="ident_model"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Identification Model</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1 md:flex-col"
+                  >
+                    {GENERATION_MODELS.map((model) => (
+                      <FormItem
+                        key={model}
+                        className="flex items-center space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <RadioGroupItem value={model} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{model}</FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="extract_model"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Extraction Model</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1 md:flex-col"
+                  >
+                    {GENERATION_MODELS.map((model) => (
+                      <FormItem
+                        key={model}
+                        className="flex items-center space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <RadioGroupItem value={model} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{model}</FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="sentenceBatchSize"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sentence Batch Size</FormLabel>
+                <FormControl>
+                  {/* <Input type="number" step={1} max={12} min={1} {...field} /> */}
+                  <Input
+                    type="number"
+                    step={1}
+                    max={24}
+                    min={1}
+                    value={field.value || 7} // Ensure it's a string or an empty string if undefined
+                    onChange={(e) => {
+                      // Convert the input value to a number using parseInt
+                      const parsedValue = parseInt(e.target.value, 10);
+                      field.onChange(parsedValue); // Update the field value with the parsed number
+                    }}
+                  />
+                </FormControl>
+                <FormDescription />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-        <FormField
-          control={form.control}
-          name="sentenceBatchSize"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sentence Batch Size</FormLabel>
-              <FormControl>
-                {/* <Input type="number" step={1} max={12} min={1} {...field} /> */}
-                <Input
-                  type="number"
-                  step={1}
-                  max={12}
-                  min={1}
-                  value={field.value || 7} // Ensure it's a string or an empty string if undefined
-                  onChange={(e) => {
-                    // Convert the input value to a number using parseInt
-                    const parsedValue = parseInt(e.target.value, 10);
-                    field.onChange(parsedValue); // Update the field value with the parsed number
-                  }}
-                />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex flex-wrap gap-2">
+
+        <div className="grid grid-cols-5 gap-2">
           {THRESHOLDS.map((t, index) => (
             <FormField
               control={form.control}
@@ -235,7 +370,7 @@ const AddCollection = ({
               name={t}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t}</FormLabel>
+                  <FormLabel className="uppercase">{t.split("_")[0]}</FormLabel>
                   <FormControl>
                     {/* <Input type="number" step={1} max={12} min={1} {...field} /> */}
                     <Input
@@ -259,23 +394,7 @@ const AddCollection = ({
             />
           ))}
         </div>
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Short description (max. 256 chars)"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
         <KnowledgeTags
           suggestions={suggestions}
           tags={tags}

@@ -9,10 +9,10 @@ type IdentifiedPerson = {
     lastname: string;
     confidence: number;
   };
-  data_of_birth?: SemanticTrigger;
+  date_of_birth?: SemanticTrigger;
   social_security_number?: SemanticTrigger;
   // residential_address?: SemanticTrigger;
-  drivers_license_id?: SemanticTrigger;
+  state_id_or_drivers_license?: SemanticTrigger;
   state_id?: SemanticTrigger;
   passport_number?: SemanticTrigger;
   financial_account_number?: SemanticTrigger;
@@ -26,7 +26,17 @@ type IdentifiedPerson = {
 };
 
 type IdentifiedPeople = IdentifiedPerson[];
-
+type Credentials = {
+  username: string;
+  password: string;
+}
+type ExtractedDataPointRef = {
+  chunk_source: string;
+  document_source: string;
+  trace: string;
+  observation: string;
+  value: string | boolean | Credentials;
+};
 type ExtractedPerson = {
   full_name: {
     firstname: string;
@@ -34,20 +44,20 @@ type ExtractedPerson = {
     lastname: string;
     confidence: number;
   };
-  data_of_birth?: Record<string, any>[];
-  social_security_number?: Record<string, any>[];
-  // residential_address?: Record<string, any>[];
-  drivers_license_id?: Record<string, any>[];
-  state_id?: Record<string, any>[];
-  passport_number?: Record<string, any>[];
-  financial_account_number?: Record<string, any>[];
-  payment_card_number?: Record<string, any>[];
-  username_and_password?: Record<string, any>[];
-  email_and_password?: Record<string, any>[];
-  biometric_data?: Record<string, any>[];
-  medical_information?: Record<string, any>[];
-  medical_record_number?: Record<string, any>[];
-  health_insurance_info?: Record<string, any>[];
+  date_of_birth?: ExtractedDataPointRef[];
+  social_security_number?: ExtractedDataPointRef[];
+  // residential_address?: ExtractedDataPointRef[];
+  state_id_or_drivers_license?: ExtractedDataPointRef[];
+  state_id?: ExtractedDataPointRef[];
+  passport_number?: ExtractedDataPointRef[];
+  financial_account_number?: ExtractedDataPointRef[];
+  payment_card_number?: ExtractedDataPointRef[];
+  username_and_password?: ExtractedDataPointRef[];
+  biometric_data?: ExtractedDataPointRef[];
+  medical_information?: ExtractedDataPointRef[];
+  medical_record_number?: ExtractedDataPointRef[];
+  health_insurance_info?: ExtractedDataPointRef[];
+  email_and_password?: ExtractedDataPointRef[];
 };
 
 type ExtractedPeople = ExtractedPerson[];
@@ -208,6 +218,8 @@ type CollectionMetadata = {
   tags?: string;
   publishedAt?: string;
   updatedAt?: string;
+  ident_model?: string;
+  extract_model?: string;
   // tags: KnowledgeTag[];
 };
 interface KnowledgeLibrary {

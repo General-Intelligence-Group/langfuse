@@ -67,13 +67,16 @@ const FragmentCard = ({
   lang,
   index,
 }: Props) => {
+  console.log(metadata)
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
         <span className="hover:bg-slate-400 px-2">{pageContent}</span>
+        
       </HoverCardTrigger>
       <HoverCardContent className="w-screen h-screen overflow-scroll">
-        <FragmentDetailsHover metadata={metadata} />
+        {/* <FragmentDetailsHover metadata={metadata} /> */}
+    
       </HoverCardContent>
 
       {/* <article className="flex h-full flex-col rounded-lg bg-slate-100 shadow-sm transition-all duration-200 ease-out hover:scale-105 hover:bg-slate-200 hover:shadow-lg dark:bg-slate-800 dark:text-slate-50">

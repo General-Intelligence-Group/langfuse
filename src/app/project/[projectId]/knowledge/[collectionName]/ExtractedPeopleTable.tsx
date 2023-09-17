@@ -1,3 +1,4 @@
+import ExtractedCellPopover from "@/src/app/project/[projectId]/knowledge/[collectionName]/ExtractedCellPopover";
 import { Badge } from "@/src/components/ui/badge";
 import {
   Table,
@@ -9,14 +10,18 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 
-type Props = { people: ExtractedPeople };
+type Props = {
+  people: ExtractedPeople;
+  projectId: string;
+  collectionId: string;
+};
 
-const ExtractedPeopleTable = ({ people }: Props) => {
+const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
   return (
     <div className="w-full space-y-4 p-2">
       <h4 className="flex items-center gap-1 text-lg font-semibold">
         <Badge>{people.length}</Badge>
-        <span>Extracted People</span>
+        <span>Identified People & Extracted Data</span>
       </h4>
       {/* <div className="grid grid-cols-2 w-full"> */}
       {/* <pre>{JSON.stringify(people, null, 2)}</pre> */}
@@ -37,11 +42,9 @@ const ExtractedPeopleTable = ({ people }: Props) => {
               className="text-center text-xs"
               title="Driver's License Number"
             >
-              Driver's&nbsp;License
+              DL / State&nbsp;ID
             </TableHead>
-            <TableHead className="text-center" title="State ID Number">
-              State&nbsp;ID
-            </TableHead>
+
             <TableHead className="text-center" title="Passport Number">
               Passport
             </TableHead>
@@ -54,9 +57,9 @@ const ExtractedPeopleTable = ({ people }: Props) => {
             <TableHead className="text-center" title="Username & Password">
               Login
             </TableHead>
-            <TableHead className="text-center" title="E-Mail & Password">
+            {/* <TableHead className="text-center" title="E-Mail & Password">
               E-Mail
-            </TableHead>
+            </TableHead> */}
             <TableHead className="text-center" title="Biometric Data">
               Biometric
             </TableHead>
@@ -72,154 +75,135 @@ const ExtractedPeopleTable = ({ people }: Props) => {
             >
               Healthcare
             </TableHead>
-            {/* <TableHead className="text-right">Conficence</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {people.map((person, rowIndex: number) => (
-            <TableRow>
-              <TableCell className="font-medium">{rowIndex + 1}</TableCell>
-              <TableCell className="flex-1">
-                {person.full_name.firstname}
-              </TableCell>
-              <TableCell className="flex-1">
-                {person.full_name.lastname}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.data_of_birth ? person.data_of_birth[0].value : ""
-                }
-              >
-                {person.data_of_birth ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.social_security_number
-                    ? person.social_security_number[0].value
-                    : ""
-                }
-              >
-                {person.social_security_number ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.drivers_license_id
-                    ? person.drivers_license_id[0].value
-                    : ""
-                }
-              >
-                {person.drivers_license_id ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={person.state_id ? person.state_id[0].value : ""}
-              >
-                {person.state_id ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.passport_number ? person.passport_number[0].value : ""
-                }
-              >
-                {person.passport_number ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.financial_account_number
-                    ? person.financial_account_number[0].value
-                    : ""
-                }
-              >
-                {person.financial_account_number ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.payment_card_number
-                    ? person.payment_card_number[0].value
-                    : ""
-                }
-              >
-                {person.payment_card_number ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.username_and_password
-                    ? person.username_and_password[0].value
-                    : ""
-                }
-              >
-                {person.username_and_password ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.email_and_password
-                    ? person.email_and_password[0].value
-                    : ""
-                }
-              >
-                {person.email_and_password ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.biometric_data && person.biometric_data[0].value
-                    ? person.biometric_data[0].value
-                    : ""
-                }
-              >
-                {person.biometric_data && person.biometric_data[0].value
-                  ? "true"
-                  : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.medical_information &&
-                  person.medical_information[0].value
-                    ? person.medical_information[0].value
-                    : ""
-                }
-              >
-                {person.medical_information &&
-                person.medical_information[0].value
-                  ? "true"
-                  : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.medical_record_number
-                    ? person.medical_record_number[0].value
-                    : ""
-                }
-              >
-                {person.medical_record_number ? "true" : ""}
-              </TableCell>
-              <TableCell
-                className=""
-                title={
-                  person.health_insurance_info &&
-                  person.health_insurance_info[0].value
-                    ? person.health_insurance_info[0].value
-                    : ""
-                }
-              >
-                {person.health_insurance_info &&
-                person.health_insurance_info[0].value
-                  ? "true"
-                  : ""}
-              </TableCell>
-              {/* <TableCell className="text-right">{(person.full_name.confidence).toFixed(2)*100}%</TableCell> */}
-            </TableRow>
-          ))}
+          {people.map((person, rowIndex: number) =>
+            // true ||
+            // person.date_of_birth ||
+            // person.social_security_number ||
+            // person.state_id_or_drivers_license ||
+            // person.passport_number ||
+            // person.financial_account_number ||
+            // person.payment_card_number ||
+            // person.username_and_password ||
+            // (person.biometric_data && person.biometric_data?.length > 0) ||
+            // (person.medical_information &&
+            //   person.medical_information?.length > 0) ||
+            // person.medical_record_number ||
+            // (person.health_insurance_info &&
+            //   person.health_insurance_info?.length > 0) ? (
+              <TableRow key={rowIndex}>
+                <TableCell className="font-medium">{rowIndex + 1}</TableCell>
+                <TableCell className="flex-1">
+                  {person.full_name.firstname}
+                </TableCell>
+                <TableCell className="flex-1">
+                  {person.full_name.lastname}
+                </TableCell>
+                <TableCell className="">
+                  {person.date_of_birth && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.date_of_birth}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.social_security_number && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.social_security_number}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.state_id_or_drivers_license && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.state_id_or_drivers_license}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="w-12">
+                  {person.passport_number && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.passport_number}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.financial_account_number && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.financial_account_number}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.payment_card_number && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.payment_card_number}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.username_and_password && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.username_and_password}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.biometric_data && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.biometric_data}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.medical_information && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.medical_information}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.medical_record_number && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.medical_record_number}
+                    />
+                  )}
+                </TableCell>
+                <TableCell className="">
+                  {person.health_insurance_info && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.health_insurance_info}
+                    />
+                  )}
+                </TableCell>
+                {/* <TableCell className="text-right">{(person.full_name.confidence).toFixed(2)*100}%</TableCell> */}
+              </TableRow>
+            // ) : null,
+          )}
         </TableBody>
       </Table>
     </div>

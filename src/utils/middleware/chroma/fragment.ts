@@ -1,19 +1,17 @@
 import { z } from "zod";
 import { ChromaClient } from "chromadb";
 
-// "subject": subject,
-// "n_token": n_token,
-// "n_char": len(document_content),
-//   "lang": json.dumps(doc_langs[0]),
-
 import { IncludeEnum, Metadata } from "chromadb/dist/main/types";
 import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
 export const fragmentMetadataSchema = z.object({
   author: z.string().optional(),
   file_directory: z.string().optional(),
   subject: z.string().optional(),
-  n_token: z.string().optional(),
-  n_char: z.string().optional(),
+  verified_nppi: z.string().optional(),
+  n_token: z.number().optional(),
+  n_char: z.number().optional(),
+  n_people: z.number().optional(),
+  filesize: z.number().optional(),
   lang: z.string().optional(),
   filename: z.string().optional(),
   last_modified: z.string().optional(),
@@ -30,12 +28,17 @@ export const fragmentMetadataSchema = z.object({
 export type FragmentMetadataEntity = z.infer<typeof fragmentMetadataSchema>;
 
 export const fragmentSchema = z.object({
+  id: z.string(),
   metadata: z.object({
+    sentences: z.string().optional(),
     author: z.string().optional(),
     file_directory: z.string().optional(),
     subject: z.string().optional(),
-    n_token: z.string().optional(),
-    n_char: z.string().optional(),
+    verified_nppi: z.string().optional(),
+    n_token: z.number().optional(),
+    n_char: z.number().optional(),
+    n_people: z.number().optional(),
+    filesize: z.number().optional(),
     lang: z.string().optional(),
     filename: z.string().optional(),
     last_modified: z.string().optional(),
@@ -53,12 +56,17 @@ export const fragmentSchema = z.object({
 });
 // Defining Entity with Zod
 export const fragmentEntitySchema = z.object({
+  id: z.string(),
   metadata: z.object({
+    sentences: z.string().optional(),
     author: z.string().optional(),
     file_directory: z.string().optional(),
     subject: z.string().optional(),
-    n_token: z.string().optional(),
-    n_char: z.string().optional(),
+    verified_nppi: z.string().optional(),
+    n_token: z.number().optional(),
+    n_char: z.number().optional(),
+    n_people: z.number().optional(),
+    filesize: z.number().optional(),
     lang: z.string().optional(),
     filename: z.string().optional(),
     last_modified: z.string().optional(),
@@ -80,7 +88,7 @@ export type FragmentEntity = z.infer<typeof fragmentEntitySchema>;
 
 // Defining Data Transfer Object (DTO) with Zod
 export const fragmentDTOSchema = z.object({
-  //   id: z.string(),
+  id: fragmentEntitySchema.shape.id,
   metadata: fragmentEntitySchema.shape.metadata,
   pageContent: fragmentEntitySchema.shape.pageContent,
 });
@@ -91,13 +99,15 @@ export type FragmentDTO = z.infer<typeof fragmentDTOSchema>;
 export const FragmentDTO = {
   convertFromEntity(
     metadatas: (Metadata | null)[],
-    fragments: (string | null)[]
+    fragments: (string | null)[],
+    ids: (string | null)[],
   ): FragmentDTO[] {
     const returnElements: FragmentDTO[] = [];
     if (metadatas.length === fragments.length && metadatas.length > 0) {
       fragments.forEach((doc, idx) => {
         if (doc) {
           returnElements.push({
+            id: ids[idx] as string,
             pageContent: doc,
             metadata: metadatas[idx] as FragmentMetadataEntity,
           });
@@ -157,7 +167,7 @@ export class FragmentService {
     });
     // console.log("collection: ", collection);
 
-    const { metadatas, documents, error } = await collection.get({
+    const { ids, metadatas, documents, error } = await collection.get({
       where: {
         source_uuid,
         // $and: [
@@ -171,7 +181,7 @@ export class FragmentService {
       offset: offset ? offset : undefined,
     });
     // console.log(metadatas, "First response");
-    const response = FragmentDTO.convertFromEntity(metadatas, documents);
+    const response = FragmentDTO.convertFromEntity(metadatas, documents, ids);
     return !error ? response : null;
   }
 
@@ -185,7 +195,7 @@ export class FragmentService {
   }: FindProps): Promise<FragmentDTO[] | null> {
     const collection = await this.getDocumentsCollection({ name });
 
-    const { documents, metadatas, error } = await collection.get({
+    const { ids, documents, metadatas, error } = await collection.get({
       where: metadata?.author ? { author: metadata?.author } : undefined,
       whereDocument: searchString ? { $contains: searchString } : undefined,
       include: [IncludeEnum.Metadatas],
@@ -193,7 +203,7 @@ export class FragmentService {
       offset: offset ? offset : undefined,
     });
     // console.log(metadatas);
-    const response = FragmentDTO.convertFromEntity(metadatas, documents);
+    const response = FragmentDTO.convertFromEntity(metadatas, documents, ids);
     console.log(response);
     return !error ? response : null;
   }

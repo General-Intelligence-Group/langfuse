@@ -10,7 +10,8 @@ import { authOptions } from "@/src/server/auth";
 export async function addCollection(
   metadata: CollectionMetadata,
   thresholds: number[],
-  sentenceBatchSize?: number
+  sentenceBatchSize?: number,
+  models?: string[]
 ) {
   console.log("Server action addCollection ... ", thresholds);
   // const client = connectToVectorStore();
@@ -34,6 +35,7 @@ export async function addCollection(
   let bodyContent = JSON.stringify({
     // model: "gpt-3",
     model: "gpt-4",
+    models: models || ["gpt-4", "gpt-4"],
     // model: "gpt-3.5-turbo-0613",
     share:
       "https://drive.google.com/drive/folders/1mkW3UBDNHJlYWKS3GI2s16cjxsryGj5m?usp=sharing",
@@ -43,8 +45,8 @@ export async function addCollection(
     description: metadata.description,
     visibility: metadata.visibility,
     session_id: knowledgeSetId,
-    lf_priv: "sk-lf-c5ed31ba-4100-4e7e-88ab-5c4c4894db8b",
-    lf_pub: "pk-lf-679904c1-33aa-46a4-b337-1c06e444ae26",
+    lf_priv: "sk-lf-b482a371-e657-435a-8fc6-62b361d9a215",
+    lf_pub: "pk-lf-52e43c9e-ff94-4a07-a9e3-95f9e7861760",
     sentence_batch_size: sentenceBatchSize || 7,
     dob_distance_threshold: thresholds[1] || 0.375,
     ssn_distance_threshold: thresholds[2] || 0.375,

@@ -37,6 +37,8 @@ const CollectionCard = ({ name, metadata, lang, user, projectId }: Props) => {
     updatedAt,
     sentenceBatchSize,
     thresholds,
+    ident_model,
+    extract_model,
   } = metadata;
 
   return (
@@ -79,9 +81,15 @@ const CollectionCard = ({ name, metadata, lang, user, projectId }: Props) => {
             <p className="line-clamp-3 flex-1 hover:line-clamp-none">
               {description}
             </p>
+            <div>
+              {ident_model && <Badge>{ident_model}</Badge>}
+              {extract_model && <Badge>{extract_model}</Badge>}
+            </div>
             <footer className="ml-auto mt-2 space-x-1 text-right text-xs italic text-gray-400">
               {sentenceBatchSize && (
-                <p>Sentence Batch Size: <Badge>{sentenceBatchSize}</Badge></p>
+                <p>
+                  Sentence Batch Size: <Badge>{sentenceBatchSize}</Badge>
+                </p>
               )}
               {owner && <p>Owner: {JSON.parse(owner).name}</p>}
               {publishedAt && (

@@ -5,31 +5,33 @@ import { IncludeEnum, Metadata } from "chromadb/dist/main/types";
 import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
 export const metadataSchema = z.object({
   source_uuid: z.string(),
-  abbreviation: z.string().optional(),
+  n_token: z.number().optional(),
   author: z.string().optional(),
   category: z.string().optional(),
   description: z.string().optional(),
-  footnotes: z.string().optional(),
+  n_char: z.number().optional(),
+  n_people: z.number().optional(),
   publishedAt: z.string().optional(),
   source: z.string(),
   title: z.string(),
-  type: z.string().optional(),
-  usefulFor: z.string().optional(),
+  filetype: z.string().optional(),
+  filesize: z.number().optional(),
   version: z.string().optional(),
 });
 // Defining Entity with Zod
 export const documentEntitySchema = z.object({
   source_uuid: z.string(),
-  abbreviation: z.string().optional(),
+  n_token: z.number().optional(),
   author: z.string().optional(),
   category: z.string().optional(),
   description: z.string().optional(),
-  footnotes: z.string().optional(),
+  n_char: z.number().optional(),
+  n_people: z.number().optional(),
   publishedAt: z.string().optional(),
   source: z.string(),
   title: z.string(),
-  type: z.string().optional(),
-  usefulFor: z.string().optional(),
+  filetype: z.string().optional(),
+  filesize: z.number().optional(),
   version: z.string().optional(),
 });
 
@@ -40,16 +42,17 @@ export type DocumentEntity = DocumentMetadata;
 export const documentDTOSchema = z.object({
   //   id: z.string(),
   source_uuid: documentEntitySchema.shape.source_uuid,
-  abbreviation: documentEntitySchema.shape.abbreviation,
+  n_token: documentEntitySchema.shape.n_token,
   author: documentEntitySchema.shape.author,
   category: documentEntitySchema.shape.category,
   description: documentEntitySchema.shape.description,
-  footnotes: documentEntitySchema.shape.footnotes,
+  n_char: documentEntitySchema.shape.n_char,
+  n_people: documentEntitySchema.shape.n_char,
   publishedAt: documentEntitySchema.shape.publishedAt,
   source: documentEntitySchema.shape.source,
   title: documentEntitySchema.shape.title,
-  type: documentEntitySchema.shape.type,
-  usefulFor: documentEntitySchema.shape.usefulFor,
+  filetype: documentEntitySchema.shape.filetype,
+  filesize: documentEntitySchema.shape.filesize,
   version: documentEntitySchema.shape.version,
 });
 
@@ -86,17 +89,19 @@ export const DocumentDTO = {
     const returnElements: DocumentMetadata[] = [];
     if (uniqueElements.length > 0) {
       uniqueElements.forEach((element) => {
+        console.log(element)
         const candidate: DocumentDTO = {
-          abbreviation: element?.abbreviation as string,
+          n_token: element?.n_token as number,
+          n_people: element?.n_people as number,
           author: element?.author as string,
           category: element?.category as string,
           description: element?.description as string,
-          footnotes: element?.footnotes as string,
+          n_char: element?.n_char as number,
           publishedAt: element?.publishedAt as string,
           source: element?.source as string,
           title: element?.title as string,
-          type: element?.type as string,
-          usefulFor: element?.usefulFor as string,
+          filetype: element?.filetype as string,
+          filesize: element?.filesize as number,
           version: element?.version as string,
           source_uuid: element?.source_uuid as string,
         };

@@ -30,18 +30,18 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                 {trigger.social_security_number && (
                   <TableHead>Social Security Number</TableHead>
                 )}
-                {trigger.data_of_birth && (
-                  <TableHead className="">data_of_birth</TableHead>
+                {trigger.date_of_birth && (
+                  <TableHead className="">date_of_birth</TableHead>
                 )}
-                {trigger.drivers_license_id && (
+                {trigger.state_id_or_drivers_license && (
                   <TableHead className="">Driver License Number</TableHead>
                 )}
-                {trigger.state_id && (
+                {/* {trigger.state_id && (
                   <TableHead className="">state_id</TableHead>
-                )}
-                {trigger.security_code && (
+                )} */}
+                {/* {trigger.security_code && (
                   <TableHead className="">security_code</TableHead>
-                )}
+                )} */}
                 {trigger.passport_number && (
                   <TableHead className="">passport_number</TableHead>
                 )}
@@ -94,31 +94,33 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                     {(1 -
                       Number(
                         trigger.social_security_number.relevance_score.toFixed(
-                          2
-                        )
+                          2,
+                        ),
                       )) *
                       100}
                   </TableCell>
                 )}
-                {trigger.data_of_birth && (
+                {trigger.date_of_birth && (
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.data_of_birth.relevance_score.toFixed(2)
+                        trigger.date_of_birth.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
                 )}
-                {trigger.drivers_license_id && (
+                {trigger.state_id_or_drivers_license && (
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.drivers_license_id.relevance_score.toFixed(2)
+                        trigger.state_id_or_drivers_license.relevance_score.toFixed(
+                          2,
+                        ),
                       )) *
                       100}
                   </TableCell>
                 )}
-                {trigger.state_id && (
+                {/* {trigger.state_id && (
                   <TableCell>
                     {(1 -
                       Number(
@@ -126,12 +128,12 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                       )) *
                       100}
                   </TableCell>
-                )}
+                )} */}
                 {trigger.security_code && (
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.security_code.relevance_score.toFixed(2)
+                        trigger.security_code.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -140,7 +142,7 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.passport_number.relevance_score.toFixed(2)
+                        trigger.passport_number.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -149,7 +151,9 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.financial_account_number.relevance_score.toFixed(2)
+                        trigger.financial_account_number.relevance_score.toFixed(
+                          2,
+                        ),
                       )) *
                       100}
                   </TableCell>
@@ -158,7 +162,7 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.payment_card_number.relevance_score.toFixed(2)
+                        trigger.payment_card_number.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -167,7 +171,7 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.payment_card_number.relevance_score.toFixed(2)
+                        trigger.payment_card_number.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -176,7 +180,9 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.username_and_password.relevance_score.toFixed(2)
+                        trigger.username_and_password.relevance_score.toFixed(
+                          2,
+                        ),
                       )) *
                       100}
                   </TableCell>
@@ -185,7 +191,7 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.email_and_password.relevance_score.toFixed(2)
+                        trigger.email_and_password.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -194,7 +200,7 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.uid_or_username.relevance_score.toFixed(2)
+                        trigger.uid_or_username.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -203,7 +209,7 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.biometric_data.relevance_score.toFixed(2)
+                        trigger.biometric_data.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -212,7 +218,7 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.medical_information.relevance_score.toFixed(2)
+                        trigger.medical_information.relevance_score.toFixed(2),
                       )) *
                       100}
                   </TableCell>
@@ -221,7 +227,9 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.medical_record_number.relevance_score.toFixed(2)
+                        trigger.medical_record_number.relevance_score.toFixed(
+                          2,
+                        ),
                       )) *
                       100}
                   </TableCell>
@@ -230,7 +238,9 @@ const SemanticTriggersTable = ({ triggers }: Props) => {
                   <TableCell>
                     {(1 -
                       Number(
-                        trigger.health_insurance_info.relevance_score.toFixed(2)
+                        trigger.health_insurance_info.relevance_score.toFixed(
+                          2,
+                        ),
                       )) *
                       100}
                   </TableCell>
