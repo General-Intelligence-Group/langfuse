@@ -4,6 +4,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
   protectedProjectProcedure,
+  publicProcedure,
 } from "@/src/server/api/trpc";
 import { Prisma, type Score, type Trace } from "@prisma/client";
 import { calculateTokenCost } from "@/src/features/ingest/lib/usage";
@@ -57,24 +58,26 @@ export const traceRouter = createTRPCRouter({
 
       let scoreCondition = Prisma.empty;
       if (input.scores) {
+        const base = Prisma.sql`AND "trace_id" in (SELECT distinct trace_id from scores WHERE trace_id IS NOT NULL AND scores.name = ${input.scores.name}`;
         switch (input.scores.operator) {
           case "lt":
-            scoreCondition = Prisma.sql`AND "trace_id" in (SELECT distinct trace_id from scores WHERE trace_id IS NOT NULL AND scores.value < ${input.scores.value})`;
+            scoreCondition = Prisma.sql`${base} AND scores.value < ${input.scores.value})`;
             break;
           case "gt":
-            scoreCondition = Prisma.sql`AND "trace_id" in (SELECT distinct trace_id from scores WHERE trace_id IS NOT NULL AND scores.value > ${input.scores.value})`;
+            scoreCondition = Prisma.sql`${base} AND scores.value > ${input.scores.value})`;
             break;
           case "equals":
-            scoreCondition = Prisma.sql`AND "trace_id" in (SELECT distinct trace_id from scores WHERE trace_id IS NOT NULL AND scores.value = ${input.scores.value})`;
+            scoreCondition = Prisma.sql`${base} AND scores.value = ${input.scores.value})`;
             break;
           case "lte":
-            scoreCondition = Prisma.sql`AND "trace_id" in (SELECT distinct trace_id from scores WHERE trace_id IS NOT NULL AND scores.value <= ${input.scores.value})`;
+            scoreCondition = Prisma.sql`${base} AND scores.value <= ${input.scores.value})`;
             break;
           case "gte":
-            scoreCondition = Prisma.sql`AND "trace_id" in (SELECT distinct trace_id from scores WHERE trace_id IS NOT NULL AND scores.value >= ${input.scores.value})`;
+            scoreCondition = Prisma.sql`${base} AND scores.value >= ${input.scores.value})`;
             break;
         }
       }
+
       const searchCondition = input.searchQuery
         ? Prisma.sql`AND (
         t."id" ILIKE ${`%${input.searchQuery}%`} OR 
@@ -301,6 +304,58 @@ export const traceRouter = createTRPCRouter({
       >,
     };
   }),
+
+  // exact copy of previoud byId, but without the project member check
+  // output must be the same as consumed by the same component
+  byIdPublic: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const [trace, observations, pricings] = await Promise.all([
+        ctx.prisma.trace.findFirst({
+          where: {
+            id: input,
+            public: true,
+          },
+          include: {
+            scores: true,
+          },
+        }),
+        ctx.prisma.observation.findMany({
+          where: {
+            traceId: {
+              equals: input,
+              not: null,
+            },
+          },
+        }),
+        ctx.prisma.pricing.findMany(),
+      ]);
+
+      if (!trace) {
+        return null;
+      }
+
+      const enrichedObservations = observations.map((observation) => {
+        return {
+          ...observation,
+          price: observation.model
+            ? calculateTokenCost(pricings, {
+                model: observation.model,
+                totalTokens: new Decimal(observation.totalTokens),
+                promptTokens: new Decimal(observation.promptTokens),
+                completionTokens: new Decimal(observation.completionTokens),
+              })
+            : undefined,
+        };
+      });
+
+      return {
+        ...trace,
+        observations: enrichedObservations as Array<
+          (typeof observations)[0] & { traceId: string } & { price?: Decimal }
+        >,
+      };
+    }),
 });
 
 function createScoreCondition(score: ScoreFilter) {
