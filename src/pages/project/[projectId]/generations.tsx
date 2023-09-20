@@ -1,5 +1,5 @@
 import Header from "@/src/components/layouts/header";
-import { api } from "@/src/utils/api";
+import { api, directApi } from "@/src/utils/api";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/src/components/table/data-table";
 import TableLink from "@/src/components/table/table-link";
@@ -9,6 +9,23 @@ import { useState } from "react";
 import { type TableRowOptions } from "@/src/components/table/types";
 import { useRouter } from "next/router";
 import { TokenUsageBadge } from "@/src/components/token-usage-badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
+import { Button } from "@/src/components/ui/button";
+import { ChevronDownIcon, Loader } from "lucide-react";
+import { type ExportFileFormats } from "@/src/server/api/routers/generations";
+import { usePostHog } from "posthog-js/react";
+import {
+  DelimitedArrayParam,
+  NumberParam,
+  StringParam,
+  useQueryParams,
+  withDefault,
+} from "use-query-params";
 
 type GenerationTableRow = {
   id: string;
@@ -17,6 +34,7 @@ type GenerationTableRow = {
   endTime?: string;
   name?: string;
   model?: string;
+  traceName?: string;
   usage: {
     promptTokens: number;
     completionTokens: number;
@@ -29,25 +47,98 @@ export type GenerationFilterInput = Omit<
   "projectId"
 >;
 
+const exportOptions: Record<
+  ExportFileFormats,
+  {
+    label: string;
+    extension: string;
+    fileType: string;
+  }
+> = {
+  CSV: { label: "CSV", extension: "csv", fileType: "text/csv" },
+  JSON: { label: "JSON", extension: "json", fileType: "application/json" },
+  "OPENAI-JSONL": {
+    label: "OpenAI JSONL (fine-tuning)",
+    extension: "jsonl",
+    fileType: "application/json",
+  },
+} as const;
+
 export default function Generations() {
+  const posthog = usePostHog();
   const router = useRouter();
   const projectId = router.query.projectId as string;
+  const [isExporting, setIsExporting] = useState(false);
 
-  const [queryOptions, setQueryOptions] = useState<GenerationFilterInput>({
-    traceId: null,
-    name: null,
-    model: null,
+  const [rawQueryOptions, setQueryOptions] = useQueryParams({
+    traceId: withDefault(DelimitedArrayParam, null),
+    name: withDefault(DelimitedArrayParam, null),
+    model: withDefault(DelimitedArrayParam, null),
+    traceName: withDefault(DelimitedArrayParam, null),
+    searchQuery: withDefault(StringParam, ""),
+  });
+  // Fix typings of useQueryParams
+  const queryOptions: GenerationFilterInput & { searchQuery: string } = {
+    traceId: rawQueryOptions.traceId as string[] | null,
+    name: rawQueryOptions.name as string[] | null,
+    model: rawQueryOptions.model as string[] | null,
+    traceName: rawQueryOptions.traceName as string[] | null,
+    searchQuery: rawQueryOptions.searchQuery,
+  };
+
+  const [paginationState, setPaginationState] = useQueryParams({
+    pageIndex: withDefault(NumberParam, 0),
+    pageSize: withDefault(NumberParam, 50),
   });
 
   const generations = api.generations.all.useQuery({
     ...queryOptions,
+    ...paginationState,
     projectId,
   });
+  const totalCount = generations.data?.slice(1)[0]?.totalCount ?? 0;
 
   const generationOptions = api.generations.availableFilterOptions.useQuery({
     ...queryOptions,
     projectId,
   });
+
+  const handleExport = async (fileFormat: ExportFileFormats) => {
+    if (isExporting) return;
+
+    setIsExporting(true);
+    posthog.capture("generations:export", { file_format: fileFormat });
+    const fileData = await directApi.generations.export.query({
+      ...queryOptions,
+      projectId,
+      fileFormat,
+    });
+
+    if (fileData) {
+      const file = new File(
+        [fileData],
+        `generations.${exportOptions[fileFormat].extension}`,
+        {
+          type: exportOptions[fileFormat].fileType,
+        },
+      );
+
+      // create url from file
+      const url = URL.createObjectURL(file);
+
+      // Use a dynamically created anchor element to trigger the download
+      const a = document.createElement("a");
+      document.body.appendChild(a);
+      a.href = url;
+      a.download = `generations.${exportOptions[fileFormat].extension}`; // name of the downloaded file
+      a.click();
+      a.remove();
+
+      // Revoke the blob URL after using it
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
+    setIsExporting(false);
+  };
 
   const columns: ColumnDef<GenerationTableRow>[] = [
     {
@@ -63,6 +154,21 @@ export default function Generations() {
             value={observationId}
           />
         ) : null;
+      },
+    },
+    {
+      accessorKey: "name",
+      enableColumnFilter: true,
+      header: "name",
+      meta: {
+        label: "Name",
+        filter: {
+          type: "select",
+          values: queryOptions.name,
+          updateFunction: (newValues: string[] | null) => {
+            setQueryOptions({ ...queryOptions, name: newValues });
+          },
+        },
       },
     },
     {
@@ -90,16 +196,16 @@ export default function Generations() {
       },
     },
     {
-      accessorKey: "name",
+      accessorKey: "traceName",
       enableColumnFilter: true,
-      header: "name",
+      header: "Trace Name",
       meta: {
-        label: "Name",
+        label: "TraceName",
         filter: {
           type: "select",
-          values: queryOptions.name,
+          values: queryOptions.traceName,
           updateFunction: (newValues: string[] | null) => {
-            setQueryOptions({ ...queryOptions, name: newValues });
+            setQueryOptions({ ...queryOptions, traceName: newValues });
           },
         },
       },
@@ -155,7 +261,7 @@ export default function Generations() {
       return {
         columnId: o.key,
         options: o.occurrences.map((o) => {
-          return { label: o.key, value: o.count._all };
+          return { label: o.key, value: o.count };
         }),
       };
     });
@@ -179,6 +285,7 @@ export default function Generations() {
     ? generations.data.map((generation) => ({
         id: generation.id,
         traceId: generation.traceId,
+        traceName: generation.traceName,
         startTime: generation.startTime.toLocaleString(),
         endTime: generation.endTime?.toLocaleString() ?? undefined,
         name: generation.name ?? undefined,
@@ -196,10 +303,13 @@ export default function Generations() {
       traceId: null,
       name: null,
       model: null,
+      traceName: null,
     });
 
   const isFiltered = () =>
-    Object.entries(queryOptions).filter(([_k, v]) => v !== null).length > 0;
+    Object.entries(queryOptions).filter(
+      ([k, v]) => k !== "searchQuery" && v !== null,
+    ).length > 0;
 
   return (
     <div>
@@ -210,6 +320,41 @@ export default function Generations() {
           options={tableOptions.data}
           resetFilters={resetFilters}
           isFiltered={isFiltered}
+          searchConfig={{
+            placeholder: "Search by id, name, traceName, model",
+            updateQuery: (newQuery) =>
+              setQueryOptions({ searchQuery: newQuery }),
+            currentQuery: queryOptions.searchQuery,
+          }}
+          actionButtons={
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="ml-auto whitespace-nowrap"
+                  size="sm"
+                >
+                  {isFiltered() ? "Export selection" : "Export all"}{" "}
+                  {isExporting ? (
+                    <Loader className="ml-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ChevronDownIcon className="ml-2 h-4 w-4" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {Object.entries(exportOptions).map(([key, options]) => (
+                  <DropdownMenuItem
+                    key={key}
+                    className="capitalize"
+                    onClick={() => void handleExport(key as ExportFileFormats)}
+                  >
+                    as {options.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
         />
       ) : undefined}
       <DataTable
@@ -230,6 +375,11 @@ export default function Generations() {
               }
         }
         options={{ isLoading: true, isError: false }}
+        pagination={{
+          pageCount: Math.ceil(totalCount / paginationState.pageSize),
+          onChange: setPaginationState,
+          state: paginationState,
+        }}
       />
     </div>
   );
