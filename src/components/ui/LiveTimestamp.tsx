@@ -1,13 +1,10 @@
 "use client";
-// @ts-ignore
 import germanStrings from "react-timeago/lib/language-strings/de";
-// @ts-ignore
 import englishStrings from "react-timeago/lib/language-strings/en";
-// @ts-ignore
 import buildFormatter from "react-timeago/lib/formatters/buildFormatter";
 
 import TimeAgo from "react-timeago";
-type Props = { time: string; lang: Locale };
+type Props = { time: Date; lang: Locale };
 function LiveTimestamp({ time, lang }: Props) {
   const formatter =
     lang === "de"

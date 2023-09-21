@@ -9,7 +9,7 @@ import {
   UsersIcon,
   
 } from "lucide-react";
-import { BuildingLibraryIcon, WrenchScrewdriverIcon } from "@heroicons/react/24/solid";
+import { BuildingLibraryIcon, WrenchScrewdriverIcon, ChatBubbleBottomCenterIcon } from "@heroicons/react/24/solid";
 
 export const ROUTES = [
   {
@@ -21,6 +21,11 @@ export const ROUTES = [
     name: "Truth Tables",
     pathname: `/project/[projectId]/knowledge`,
     icon: BuildingLibraryIcon,
+  },
+  {
+    name: "Chats",
+    pathname: `/project/[projectId]/chats/`,
+    icon: ChatBubbleBottomCenterIcon,
   },
   {
     name: "Docks",

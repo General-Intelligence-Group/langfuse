@@ -1,17 +1,8 @@
 import DeleteCollectionButton from "@/src/app/project/[projectId]/knowledge/DeleteCollectionButton";
 import ClipboardButton from "@/src/components/ui/ClipboardButton";
-import LiveTimestamp from "@/src/components/ui/LiveTimestamp";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/src/components/ui/table";
+import { TableCell, TableRow } from "@/src/components/ui/table";
 import { EyeDropperIcon } from "@heroicons/react/20/solid";
 import {
   ChatBubbleBottomCenterIcon,
@@ -20,6 +11,9 @@ import {
 } from "@heroicons/react/24/solid";
 import { ArrowRight, Loader2, Share } from "lucide-react";
 import Link from "next/link";
+
+import dynamic from "next/dynamic";
+const TimeAgo = dynamic(() => import("./TimeAgo"), { ssr: false });
 type Props = {
   lang: Locale;
   index: number;
@@ -28,14 +22,12 @@ type Props = {
 };
 function DatasetRow({ index, metadata, id, lang }: Props) {
   const {
-    image,
     title,
     visibility,
     status,
     owner,
     description,
     publishedAt,
-    updatedAt,
     sentenceBatchSize,
     thresholds,
     ident_model,
@@ -66,7 +58,7 @@ function DatasetRow({ index, metadata, id, lang }: Props) {
       <TableCell>{description}</TableCell>
       <TableCell>{owner && JSON.parse(owner).name}</TableCell>
       <TableCell>
-        {publishedAt && <LiveTimestamp lang={lang} time={publishedAt} />}
+        {publishedAt && <TimeAgo lang={lang} timestamp={publishedAt} />}
       </TableCell>
       <TableCell>
         <ul className="discard">
@@ -75,7 +67,7 @@ function DatasetRow({ index, metadata, id, lang }: Props) {
         </ul>
       </TableCell>
       <TableCell>{sentenceBatchSize}</TableCell>
-      <TableCell className="grid grid-cols-4">
+      <TableCell className="grid grid-cols-2 md:grid-cols-4">
         <Link title="Details" href={`/project/${projectId}/knowledge/${id}`}>
           <ArrowRight className="h-8 w-8" />
         </Link>

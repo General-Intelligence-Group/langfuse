@@ -35,8 +35,8 @@ export default function Provider({ children }: { children: React.ReactNode }) {
             (opts.direction === "down" && opts.result instanceof Error),
         }),
         httpBatchLink({
-          // url: `${getBaseUrl()}/api/trpc`,
-          url: `http://localhost:3000/api/trpc`,
+          url: `${getBaseUrl()}/api/trpc`,
+          // url: `http://localhost:3000/api/trpc`,
           
         }),
       ],
