@@ -6,7 +6,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import "@/src/styles/globals.css";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { Code, MessageSquarePlus, Info } from "lucide-react";
 // import { signOut, useSession } from "next-auth/react";
@@ -18,7 +18,7 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { api } from "@/src/utils/api";
-import { NewProjectButton } from "@/src/features/projects/components/NewProjectButtonNavigation";
+// import { NewProjectButton } from "@/src/features/projects/components/NewProjectButtonNavigation";
 import { FeedbackButtonWrapper } from "@/src/features/feedback/component/FeedbackButton";
 import { Button } from "@/src/components/ui/button";
 
@@ -36,8 +36,8 @@ const userNavigation = [
 import { usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-const pathsWithoutNavigation: string[] = [];
-const unauthenticatedPaths = ["/auth/sign-in", "/auth/sign-up"];
+// const pathsWithoutNavigation: string[] = [];
+// const unauthenticatedPaths = ["/auth/sign-in", "/auth/sign-up"];
 
 export default function Layout(props: PropsWithChildren) {
   const pathname = usePathname();
@@ -45,7 +45,7 @@ export default function Layout(props: PropsWithChildren) {
   console.log("pathname: ", pathname);
   console.log("searchParams: ", searchParams);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
   const projectId = pathname?.split("/")[2];
   console.log("projectId: ", projectId);
   const navigation = ROUTES.filter(
@@ -508,17 +508,17 @@ export default function Layout(props: PropsWithChildren) {
   );
 }
 
-function Spinner(props: { message: string }) {
-  return (
-    <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <span className="block text-center font-mono text-4xl font-bold motion-safe:animate-spin">
-          🪢
-        </span>
-        <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-          {props.message} ...
-        </h2>
-      </div>
-    </div>
-  );
-}
+// function Spinner(props: { message: string }) {
+//   return (
+//     <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
+//       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+//         <span className="block text-center font-mono text-4xl font-bold motion-safe:animate-spin">
+//           🪢
+//         </span>
+//         <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+//           {props.message} ...
+//         </h2>
+//       </div>
+//     </div>
+//   );
+// }

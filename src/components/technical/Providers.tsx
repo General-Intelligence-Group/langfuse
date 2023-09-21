@@ -1,11 +1,11 @@
 "use client";
 
 import { ReactNode } from "react";
-import { ThemeProvider } from "next-themes";
+// import { ThemeProvider } from "next-themes";
 import posthog from "posthog-js";
-import { PostHogProvider } from "posthog-js/react";
+// import { PostHogProvider } from "posthog-js/react";
 
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 import Provider from "@/src/app/_trpc/Provider";
 // const Toaster = dynamic(() =>
 //   import("@/components/ui/toaster").then((mod) => mod.Toaster)
@@ -33,14 +33,17 @@ type Props = {
 
 function Providers({ children }: Props) {
   return (
-    // <PostHogProvider client={posthog}>
-      <ThemeProvider attribute="class" enableSystem>
-        {/* <Toaster /> */}
-        {/* {children} */}
-        <Provider>{children}</Provider>
-      </ThemeProvider>
-    // </PostHogProvider>
+    <Provider>{children}</Provider>
+
   );
 }
 
 export default Providers;
+
+    // <PostHogProvider client={posthog}>
+      // <ThemeProvider attribute="class" enableSystem>
+        {/* <Toaster /> */}
+        {/* {children} */}
+        
+      // </ThemeProvider>
+    // </PostHogProvider>
