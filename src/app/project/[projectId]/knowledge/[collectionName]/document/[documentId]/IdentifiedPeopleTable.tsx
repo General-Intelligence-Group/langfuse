@@ -11,6 +11,7 @@ import {
 
 type Props = { people: IdentifiedPeople };
 
+
 const IdentifiedPeopleTable = ({ people }: Props) => {
   return (
     <div className="space-y-4 p-2">
@@ -25,7 +26,9 @@ const IdentifiedPeopleTable = ({ people }: Props) => {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">#</TableHead>
+            <TableHead>Titles</TableHead>
             <TableHead>First Name</TableHead>
+            <TableHead>Middle Names</TableHead>
             {/* <TableHead>Middle Names</TableHead> */}
             <TableHead>Last Name</TableHead>
             {/* <TableHead className="text-right">Conficence</TableHead> */}
@@ -33,10 +36,14 @@ const IdentifiedPeopleTable = ({ people }: Props) => {
         </TableHeader>
         <TableBody>
           {people.map((person, rowIndex: number) => (
-            <TableRow>
+            <TableRow key={rowIndex}>
               <TableCell className="font-medium">{rowIndex + 1}</TableCell>
+              <TableCell className="flex-1">{person.full_name.title}</TableCell>
               <TableCell className="flex-1">
                 {person.full_name.firstname}
+              </TableCell>
+              <TableCell className="flex-1">
+                {person.full_name.middlenames}
               </TableCell>
               {/* <TableCell>{person.full_name.middlenames}</TableCell> */}
               <TableCell className="flex-1">

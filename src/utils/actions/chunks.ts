@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { connectToVectorStore } from "../middleware/chroma";
-import { IncludeEnum } from "chromadb/dist/main/types";
+import { IncludeEnum } from "@/src/assets/constants";
 
 export async function classifyChunk(
   projectId: string,

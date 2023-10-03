@@ -1,18 +1,14 @@
 "use client";
 import { useState } from "react";
-import { CollectionType } from "chromadb/dist/main/types";
+import { type CollectionType } from "chromadb/dist/main/types";
 import AddCollection from "./[collectionName]/AddCollection";
-import { User } from "next-auth";
+import { type User } from "next-auth";
 import {
   Menubar,
-  MenubarCheckboxItem,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
   MenubarSeparator,
-  MenubarShortcut,
   MenubarSub,
   MenubarSubContent,
   MenubarSubTrigger,
@@ -28,7 +24,6 @@ type Props = {
 };
 
 const CollectionMenuBar = ({
-  collectionName,
   lang,
   availableCollections,
   user,

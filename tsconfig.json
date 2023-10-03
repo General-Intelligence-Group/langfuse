@@ -44,7 +44,7 @@
     "**/*.cjs",
     "**/*.mjs",
     ".next/types/**/*.ts"
-, "next.config.js", "../archiv/CollectionCard.tsx"  ],
+, "next.config.js", "../archiv/CollectionCard.tsx", "../archiv/KnowledgeList.tsx", "src/app/project/[projectId]/knowledge/[collectionName]/KnowledgeTags.tsx"  ],
   "exclude": [
     "node_modules",
     "sdk"

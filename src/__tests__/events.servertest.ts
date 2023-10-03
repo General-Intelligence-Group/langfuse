@@ -280,7 +280,7 @@ describe("/api/public/events API Endpoint", () => {
 
     const dbTrace = await prisma.trace.findMany({
       where: {
-        id: dbEvent.traceId,
+        id: dbEvent.traceId!,
       },
     });
 

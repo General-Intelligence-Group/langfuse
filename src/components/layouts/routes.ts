@@ -9,7 +9,7 @@ import {
   UsersIcon,
   
 } from "lucide-react";
-import { BuildingLibraryIcon, WrenchScrewdriverIcon, ChatBubbleBottomCenterIcon } from "@heroicons/react/24/solid";
+import { BuildingLibraryIcon, WrenchScrewdriverIcon, ChatBubbleBottomCenterIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 
 export const ROUTES = [
   {
@@ -23,7 +23,12 @@ export const ROUTES = [
     icon: BuildingLibraryIcon,
   },
   {
-    name: "Chats",
+    name: "Semantic Search",
+    pathname: `/project/[projectId]/semantic-search/`,
+    icon: MagnifyingGlassIcon,
+  },
+  {
+    name: "Chat with Data",
     pathname: `/project/[projectId]/chats/`,
     icon: ChatBubbleBottomCenterIcon,
   },

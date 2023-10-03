@@ -1,12 +1,10 @@
 // import NavLink from "../news/NavLink";
 import Link from "next/link";
 import { BuildingLibraryIcon } from "@heroicons/react/24/outline";
-import Search from "./Search";
+
 import CollectionMenuBar from "./CollectionMenuBar";
-import { CollectionType } from "chromadb/dist/main/types";
-import { User } from "next-auth";
-import { knowledgeCategories } from "@/src/assets/constants";
-import NavLink from "@/src/components/ui/NavLink";
+import { type CollectionType } from "chromadb/dist/main/types";
+import { type User } from "next-auth";
 type Props = {
   lang: Locale;
   collectionName: string;
@@ -20,7 +18,7 @@ export default function CollectionHeader({
   collectionName,
   availableCollections,
   user,
-  projectId
+  projectId,
 }: Props) {
   return (
     <header>
@@ -35,14 +33,14 @@ export default function CollectionHeader({
         ))}
       </nav> */}
       <section className="w-full bg-gray-500/10 ">
-        <div className="relative max-w-7xl mx-auto flex flex-col items-center p-5 lg:flex-row rounded-b-2xl">
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center rounded-b-2xl p-5 lg:flex-row">
           <Link
             href={`/project/${projectId}/knowledge`}
-            className="flex flex-col items-end justify-start w-full gap-3 mb-5 text-center sm:text-left sm:flex-row"
+            className="mb-5 flex w-full flex-col items-end justify-start gap-3 text-center sm:flex-row sm:text-left"
           >
             <div>
-              <BuildingLibraryIcon className="w-24 h-24 mx-auto" />
-              <p className="font-serif text-sm italic font-medium tracking-widest text-center underline decoration-secondary-500 text-primary-950 underline-offset-3">
+              <BuildingLibraryIcon className="mx-auto h-24 w-24" />
+              <p className="decoration-secondary-500 text-primary-950 underline-offset-3 text-center font-serif text-sm font-medium italic tracking-widest underline">
                 The Knowledge Network
               </p>
             </div>
@@ -50,17 +48,16 @@ export default function CollectionHeader({
               <h2 className="font-serif text-6xl tracking-widest">
                 Truth Tables
               </h2>
-              <p className="tracking-[9px] text-[18px] uppercase">
+              <p className="text-[18px] uppercase tracking-[9px]">
                 Distributed Knowledge Management
               </p>
             </div>
           </Link>
 
-          <div className="flex items-center justify-end flex-1 w-full gap-5">
-            <Search lang={lang} collectionName={collectionName} />
-          </div>
+          {/* <div className="flex items-center justify-end flex-1 w-full gap-5">
+          </div> */}
         </div>
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto max-w-7xl">
           <CollectionMenuBar
             availableCollections={availableCollections}
             lang={lang}

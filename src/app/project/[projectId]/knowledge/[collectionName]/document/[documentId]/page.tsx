@@ -1,22 +1,12 @@
 import { connectToVectorStore } from "@/src/utils/middleware/chroma";
 import FragmentList from "../../FragmentList";
 import {
-  FragmentDTO,
-  FragmentMetadataEntity,
+  type FragmentMetadataEntity,
   FragmentService,
 } from "@/src/utils/middleware/chroma/fragment";
-import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
-import { Badge } from "@/src/components/ui/badge";
+
 import DocumentHeader from "@/src/app/project/[projectId]/knowledge/[collectionName]/document/[documentId]/DocumentHeader";
 
-type Props = {
-  searchParams?: {
-    author: string;
-    title: string;
-    source: string;
-    visibility: string;
-  };
-};
 // const KnowledgeDocumentPage = ({ searchParams }: Props) => {
 // console.log("searchParams", searchParams);
 const KnowledgeDocumentPage = async ({

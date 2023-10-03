@@ -10,18 +10,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  console.log(session)
+  console.log(session);
   return (
-      <AuthProvider>
+    <AuthProvider>
       <html lang="en">
-      <Providers>          
-        
-      <body>
-              <Layout>{children}</Layout>
-            </body>
-    </Providers>
-    </html>
-        
-            </AuthProvider>
+        <Providers>
+          <body>
+            <Layout>{children}</Layout>
+          </body>
+        </Providers>
+      </html>
+    </AuthProvider>
   );
 }

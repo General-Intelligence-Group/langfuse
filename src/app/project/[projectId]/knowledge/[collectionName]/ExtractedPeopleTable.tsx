@@ -9,16 +9,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
+import {type   IdentifiedPerson } from "@/src/utils/middleware/chroma/collection";
 
 type Props = {
-  people: ExtractedPeople;
+  people: IdentifiedPerson[];
   projectId: string;
   collectionId: string;
 };
 
 const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
   return (
-    <div className="w-full space-y-4 p-2">
+    <div className="w-full space-y-4 py-2">
       <h4 className="flex items-center gap-1 text-lg font-semibold">
         <Badge>{people.length}</Badge>
         <span>Identified People & Extracted Data</span>
@@ -30,7 +31,9 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">#</TableHead>
+            <TableHead className="text-center">Titles</TableHead>
             <TableHead className="text-center">Firstname</TableHead>
+            <TableHead className="text-center">Middlenames</TableHead>
             <TableHead className="text-center">Lastname</TableHead>
             <TableHead className="text-center" title="Date of Birth">
               DoB
@@ -78,25 +81,32 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {people.map((person, rowIndex: number) =>
-            // true ||
-            // person.date_of_birth ||
-            // person.social_security_number ||
-            // person.state_id_or_drivers_license ||
-            // person.passport_number ||
-            // person.financial_account_number ||
-            // person.payment_card_number ||
-            // person.username_and_password ||
-            // (person.biometric_data && person.biometric_data?.length > 0) ||
-            // (person.medical_information &&
-            //   person.medical_information?.length > 0) ||
-            // person.medical_record_number ||
-            // (person.health_insurance_info &&
-            //   person.health_insurance_info?.length > 0) ? (
+          {people.map(
+            (person, rowIndex: number) => (
+              // true ||
+              // person.date_of_birth ||
+              // person.social_security_number ||
+              // person.state_id_or_drivers_license ||
+              // person.passport_number ||
+              // person.financial_account_number ||
+              // person.payment_card_number ||
+              // person.username_and_password ||
+              // (person.biometric_data && person.biometric_data?.length > 0) ||
+              // (person.medical_information &&
+              //   person.medical_information?.length > 0) ||
+              // person.medical_record_number ||
+              // (person.health_insurance_info &&
+              //   person.health_insurance_info?.length > 0) ? (
               <TableRow key={rowIndex}>
                 <TableCell className="font-medium">{rowIndex + 1}</TableCell>
                 <TableCell className="flex-1">
+                  {person.full_name.title}
+                </TableCell>
+                <TableCell className="flex-1">
                   {person.full_name.firstname}
+                </TableCell>
+                <TableCell className="flex-1">
+                  {person.full_name.middlenames}
                 </TableCell>
                 <TableCell className="flex-1">
                   {person.full_name.lastname}
@@ -202,6 +212,7 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
                 </TableCell>
                 {/* <TableCell className="text-right">{(person.full_name.confidence).toFixed(2)*100}%</TableCell> */}
               </TableRow>
+            ),
             // ) : null,
           )}
         </TableBody>

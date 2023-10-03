@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { ChromaClient } from "chromadb";
+import { type ChromaClient } from "chromadb";
 
-import { IncludeEnum, Metadata } from "chromadb/dist/main/types";
-import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
+import { type Metadata } from "chromadb/dist/main/types";
+import { type DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
+import { IncludeEnum } from "@/src/assets/constants";
 export const fragmentMetadataSchema = z.object({
   author: z.string().optional(),
   file_directory: z.string().optional(),
@@ -150,8 +151,6 @@ export class FragmentService {
 
   async getFragments({
     collectionName,
-    title,
-    source,
     limit,
     offset,
     source_uuid,
@@ -187,7 +186,6 @@ export class FragmentService {
 
   async findFragment({
     name,
-    title,
     limit,
     offset,
     metadata,

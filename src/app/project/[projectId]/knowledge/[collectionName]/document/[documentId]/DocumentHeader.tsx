@@ -1,16 +1,14 @@
 import FragmentMetadataInfoBox from "@/src/app/project/[projectId]/knowledge/[collectionName]/document/[documentId]/FragmentMetadataInfoBox";
 import IdentifiedPeopleTable from "@/src/app/project/[projectId]/knowledge/[collectionName]/document/[documentId]/IdentifiedPeopleTable";
-import { Badge } from "@/src/components/ui/badge";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/src/components/ui/tabs";
-import { FragmentMetadataEntity } from "@/src/utils/middleware/chroma/fragment";
+import { type FragmentMetadataEntity } from "@/src/utils/middleware/chroma/fragment";
 
 type Props = { metadata: FragmentMetadataEntity | undefined };
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 function DocumentHeader({ metadata }: Props) {
   let people: IdentifiedPeople = [];
   if (metadata && metadata.people) {

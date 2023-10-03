@@ -1,28 +1,27 @@
-import DeleteCollectionButton from "@/src/app/project/[projectId]/knowledge/DeleteCollectionButton";
-import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
-import ClipboardButton from "@/src/components/ui/ClipboardButton";
-import LiveTimestamp from "@/src/components/ui/LiveTimestamp";
 import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
+
 import { TableCell, TableRow } from "@/src/components/ui/table";
 import { formatFileSize, formatNumberToInt } from "@/src/utils/helper";
-import { FragmentMetadataEntity } from "@/src/utils/middleware/chroma/fragment";
-import {
-  ChatBubbleBottomCenterIcon,
-  CheckBadgeIcon,
-} from "@heroicons/react/24/solid";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { type DocumentDTO } from "@/src/utils/middleware/chroma/document";
+
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 type Props = {
   lang: Locale;
   index: number;
-  metadata: FragmentMetadataEntity;
-  id: string;
+  metadata: DocumentDTO;
   projectId: string;
+  collectionName: string;
 };
-function DocumentRow({ index, metadata, id, lang, projectId }: Props) {
+function DocumentRow({
+  index,
+  metadata,
+  lang,
+  projectId,
+  collectionName,
+}: Props) {
   const { title, filetype, n_char, n_token, filesize, n_people } = metadata;
-  console.log("metadata: ", metadata);
+
   return (
     <TableRow>
       <TableCell className="text-left">{index + 1}</TableCell>
@@ -38,7 +37,7 @@ function DocumentRow({ index, metadata, id, lang, projectId }: Props) {
       <TableCell className="grid">
         <Link
           title="Details"
-          href={`/project/${projectId}/knowledge/${id}/document/${metadata.source_uuid}`}
+          href={`/project/${projectId}/knowledge/${collectionName}/document/${metadata.source_uuid}`}
         >
           <ArrowRight className="h-8 w-8" />
         </Link>

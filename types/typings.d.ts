@@ -7,7 +7,7 @@ type IdentifiedPerson = {
     firstname: string;
     middlenames: string;
     lastname: string;
-    confidence: number;
+    title: string;
   };
   date_of_birth?: SemanticTrigger;
   social_security_number?: SemanticTrigger;
@@ -29,7 +29,7 @@ type IdentifiedPeople = IdentifiedPerson[];
 type Credentials = {
   username: string;
   password: string;
-}
+};
 type ExtractedDataPointRef = {
   chunk_source: string;
   document_source: string;
@@ -38,11 +38,12 @@ type ExtractedDataPointRef = {
   value: string | boolean | Credentials;
 };
 type ExtractedPerson = {
+  id?: string;
   full_name: {
     firstname: string;
     middlenames: string;
     lastname: string;
-    confidence: number;
+    title: string;
   };
   date_of_birth?: ExtractedDataPointRef[];
   social_security_number?: ExtractedDataPointRef[];
@@ -102,6 +103,14 @@ const chatModes = {
 } as const;
 type ChatMode = (typeof chatModes)[keyof typeof chatModes];
 
+// Search
+const searchModes = {
+  semantic: "semantic",
+  keyword: "keyword",
+  metadata: "metadata",
+} as const;
+type SearchMode = (typeof searchModes)[keyof typeof searchModes];
+
 const llms = {
   botree: "botree",
   gpt3: "gpt-3",
@@ -112,24 +121,16 @@ type LLM = (typeof llms)[keyof typeof llms];
 interface ChatGPTMessage {
   role: ChatGPTAgent;
   content: string;
-  sourceDocs?: any;
-  followUps?: any;
+  sourceDocs?: unknown;
+  followUps?: unknown;
   feedback?: ResponseUserRating;
-  user?: Record<string, any>;
+  user?: Record<string, unknown>;
 }
 type ResponseUserRating =
   | undefined
   | number
-  | { user: Record<string, any>; rating: number | undefined }[];
-type LineProps = {
-  message: ChatGPTMessage;
-  lang: Locale;
-  gisId: string;
-  chatId?: string;
-  assistantName: string;
-  index: number;
-  user: User | null | undefined;
-};
+  | { user: Record<string, unknown>; rating: number | undefined }[];
+
 
 type Chat = {
   _id?: ObjectId;
@@ -198,6 +199,29 @@ type LibraryState = {
 };
 
 type GraphConnection = { id: string; weight: number };
+
+type MultiSelectTagBase = {
+  id: string;
+  text: string;
+};
+type SemanticSearchParams = {
+  q: string | null;
+  ft: string | null;
+  ds: string | null;
+  p: string | null;
+  semantic: string | null;
+  relevance: string | null;
+  limit: string | null;
+};
+// This type extends the base type and adds a metadata property
+type MultiSelectTagDefault = MultiSelectTagBase & {
+  metadata?: Record<string, unknown>;
+};
+
+type MultiSelectCollectionTag = MultiSelectTagBase & {
+  metadata: CollectionMetadata;
+};
+
 type KnowledgeTag = {
   id: string;
   text: string;
@@ -205,29 +229,38 @@ type KnowledgeTag = {
   weight?: number;
 };
 type CollectionMetadata = {
-  projectId?: string;
+  projectId: string;
   title: string;
   description: string;
   use?: string;
+  people: string;
+  error_files: string;
   visibility: KnowledgeCategory | KnowledgeVisibility;
-  owner?: string;
-  status?: string;
-  thresholds?: string;
+  general_distance_threshold: number;
+  dob_distance_threshold: number;
+  ssn_distance_threshold: number;
+  drivers_distance_threshold: number;
+  state_id_distance_threshold: number;
+  passport_number_distance_threshold: number;
+  account_number_distance_threshold: number;
+  card_number_distance_threshold: number;
+  username_distance_threshold: number;
+  email_distance_threshold: number;
+  bio_distance_threshold: number;
+  medical_distance_threshold: number;
+  mrn_distance_threshold: number;
+  insurance_distance_threshold: number;
+  owner: string;
+  status: string;
   sentenceBatchSize?: number;
   image?: string;
   tags?: string;
-  publishedAt?: string;
-  updatedAt?: string;
-  ident_model?: string;
-  extract_model?: string;
+  publishedAt: string;
+  updatedAt: string;
+  ident_model: string;
+  extract_model: string;
   // tags: KnowledgeTag[];
 };
-interface KnowledgeLibrary {
-  id: string;
-  name: string;
-  metadata: Metadata | null;
-  documents: FullDocument[];
-}
 interface FullDocument {
   id: string;
   createdAt?: string;
@@ -245,27 +278,12 @@ interface FullDocument {
   feedback?: Feedback;
 }
 
-// type User = {
-//   uid: string;
-//   name: string;
-//   email: string;
-//   image?: string | undefined | null;
-//   tokenBalance: number;
-//   roles: Role[];
-//   tier: SubscriptionTier;
-//   libraries: string[];
-// };
-type IndividualFeedback = {
-  user: JWT | JwtPayload | null;
-  rating: Rating[];
-};
+
 
 type Feedback = { general: number; individual: IndividualFeedback[] };
-type Doc = { pageContent: string; metadata: Record<string, any> };
+type Doc = { pageContent: string; metadata: Record<string, unkonwn> };
 type Docs = Doc[];
-interface KnowledgeBoard {
-  columns: Map<string, KnowledgeLibrary>;
-}
+
 // News Types
 
 type NewsSearchParams = {
@@ -370,10 +388,3 @@ type Persona = {
     presence_penalty: number;
   };
 };
-
-interface ShareButtonProps {
-  url: string;
-  title: string;
-  description: string;
-  sidebar?: boolean;
-}

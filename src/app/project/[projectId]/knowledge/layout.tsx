@@ -7,11 +7,8 @@ import { CollectionType } from "chromadb/dist/main/types";
 import { authOptions } from "@/src/server/auth";
 import { connectToVectorStore } from "@/src/utils/middleware/chroma";
 
-export function generateMetadata({
-  params: { lang },
-}: {
-  params: { lang: Locale };
-}): Metadata {
+export function generateMetadata({ }: { params: { lang: Locale; collectionName: string; } }): Metadata {
+  
   return {
     // description: framework.description,
     title: "Truth Tables",

@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { ChromaClient } from "chromadb";
+import { type ChromaClient } from "chromadb";
 // import { DocumentMetadata } from "@/src/app/knowledge/[visibility]/[collectionName]/page";
-import { IncludeEnum, Metadata } from "chromadb/dist/main/types";
-import { DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
+import { type Metadata } from "chromadb/dist/main/types";
+import { type DocumentMetadata } from "@/src/app/project/[projectId]/knowledge/[collectionName]/page";
+import { IncludeEnum } from "@/src/assets/constants";
 export const metadataSchema = z.object({
   source_uuid: z.string(),
   n_token: z.number().optional(),
@@ -86,10 +87,10 @@ export const DocumentDTO = {
             return false;
           })
         : [];
-    const returnElements: DocumentMetadata[] = [];
+    const returnElements: DocumentDTO[] = [];
     if (uniqueElements.length > 0) {
       uniqueElements.forEach((element) => {
-        console.log(element)
+        console.log(element);
         const candidate: DocumentDTO = {
           n_token: element?.n_token as number,
           n_people: element?.n_people as number,
@@ -106,7 +107,6 @@ export const DocumentDTO = {
           source_uuid: element?.source_uuid as string,
         };
         const passed = documentDTOSchema.parse(candidate);
-        // @ts-ignore TODO fix type error
         returnElements.push(passed);
       });
     }
@@ -137,7 +137,6 @@ export class DocumentService {
 
   async findDocument({
     name,
-    title,
     limit,
     offset,
     metadata,

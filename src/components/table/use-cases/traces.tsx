@@ -57,7 +57,7 @@ export default function TracesTable({
         searchQuery: null,
         metadata: null,
       };
-
+console.log(filters)
   const [queryOptions, setQuery] = useState<TraceFilterInput>(filters);
 
   const setQueryOptions = (filter?: TraceFilterInput) => {

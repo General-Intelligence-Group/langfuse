@@ -13,3 +13,12 @@ export const knowledgeCategories: KnowledgeCategory[] = [
   "private",
   "shared",
 ];
+
+export enum IncludeEnum {
+  Documents = "documents",
+  Embeddings = "embeddings",
+  Metadatas = "metadatas",
+  Distances = "distances",
+}
+
+export const goldenRation = 0.618;

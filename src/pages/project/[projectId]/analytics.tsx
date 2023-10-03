@@ -26,27 +26,11 @@ export default function AnalyticsPage() {
   return (
     <div className="md:container">
       <Header title="Analytics" />
-      {env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION === "EU" ? (
-        <DashboardEmbed projectId={projectId} />
-      ) : (
-        <AnalyticsDisabled />
-      )}
+      <DashboardEmbed projectId={projectId} />
     </div>
   );
 }
 
-const AnalyticsDisabled = () => (
-  <Alert>
-    <Construction className="h-4 w-4" />
-    <AlertTitle>Analytics alpha is only available on Langfuse Cloud</AlertTitle>
-    <AlertDescription>
-      While we are in the alpha phase, Analytics is only available for Langfuse
-      Cloud{env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION === "US" ? " EU" : ""} users
-      as we use Looker to power the dashboards. An open source version is work
-      in progress.
-    </AlertDescription>
-  </Alert>
-);
 
 const dashboards = [
   {

@@ -1,6 +1,8 @@
 import { z } from "zod";
 // import { ObjectId } from "mongodb";
-import { ChromaClient, Collection } from "chromadb";
+import { type ChromaClient, type Collection } from "chromadb";
+import { unstable_cache } from "next/cache";
+// import { goldenRation } from "@/src/assets/constants";
 
 // Define KnowledgeCategory as an enum of valid visibility values
 const knowledgeCategory = {
@@ -19,6 +21,18 @@ export const graphConnectionSchema = z.object({
 });
 export type GraphConnectionEntity = z.infer<typeof graphConnectionSchema>;
 
+export const semanticSearchSchema = z.object({
+  semanticInput: z.string().min(7).max(1000),
+  relevanceThreshold: z.number().min(0).step(0.01).max(100).default(0),
+  // .default((1 - goldenRation) * 100),
+  numberOfDocs: z.number().min(0).step(0.01).max(100).default(4),
+  // numberOfDocs: z.number().min(1).max(10000).step(1).default(10),
+  semantic_switch_datapoint: z.boolean().default(true).optional(),
+  semantic_switch_people: z.boolean().default(true),
+  // relevanceThreshold: z.array(z.number().min(0).max(100)).length(1),
+});
+export type SemanticSearchSchemaEntity = z.infer<typeof semanticSearchSchema>;
+
 export const knowledgeTagSchema = z.object({
   id: z.string(),
   text: z.string().max(24),
@@ -27,44 +41,166 @@ export const knowledgeTagSchema = z.object({
 });
 export type KnowledgeTagEntity = z.infer<typeof knowledgeTagSchema>;
 
-export const CollectionMetadataSchema = z.object({
+const errorFileSchema = z.object({
+  file: z.object({
+    size: z.number(),
+    absolute_path: z.string(),
+    type: z.string(),
+  }),
+  error: z.string(),
+});
+export type ErrorFile = z.infer<typeof errorFileSchema>;
+const fullNameSchema = z.object({
+  title: z.string().max(32).optional(),
+  firstname: z.string().max(64),
+  middlenames: z.string().max(64).optional(),
+  lastname: z.string().max(64),
+});
+export type FullName = z.infer<typeof fullNameSchema>;
+
+const dataPointSchema = z.object({
+  // value: z.string(),
+  value: z
+    .string()
+    .or(z.boolean())
+    .or(
+      z.object({
+        username: z.string(),
+        password: z.string(),
+      }),
+    ),
+  chunk_source: z.string(),
+  document_source: z.string(),
+  observation: z.string(),
+  trace: z.string(),
+});
+export type DataPoint = z.infer<typeof dataPointSchema>;
+
+const credentialsSchema = z.object({
+  // value: z.string(),
+  value: z
+    .object({
+      username: z.string().optional().nullable(),
+      password: z.string().optional().nullable(),
+    })
+    .optional(),
+  chunk_source: z.string(),
+  document_source: z.string(),
+  observation: z.string(),
+  trace: z.string(),
+});
+export type Credentials = z.infer<typeof credentialsSchema>;
+const IdentifiedPersonSchema = z.object({
+  full_name: fullNameSchema,
+  date_of_birth: z.array(dataPointSchema).optional(),
+  social_security_number: z.array(dataPointSchema).optional(),
+  state_id_or_drivers_license: z.array(dataPointSchema).optional(),
+  passport_number: z.array(dataPointSchema).optional(),
+  financial_account_number: z.array(dataPointSchema).optional(),
+  payment_card_number: z.array(dataPointSchema).optional(),
+  username_and_password: z.array(credentialsSchema).optional().nullable(),
+  biometric_data: z.array(dataPointSchema).optional(),
+  medical_information: z.array(dataPointSchema).optional(),
+  medical_record_number: z.array(dataPointSchema).optional(),
+  health_insurance_info: z.array(dataPointSchema).optional(),
+});
+export type IdentifiedPerson = z.infer<typeof IdentifiedPersonSchema>;
+
+const ownerSchema = z
+  .object({
+    name: z.string(),
+    id: z.string(),
+  })
+  .optional();
+export type Owner = z.infer<typeof ownerSchema>;
+export const collectionMetadataSchema = z.object({
   projectId: z.string().max(256).optional(),
   title: z.string(),
   description: z.string().max(256),
-  visibility: VisibilitySchema,
-  embedding_model: z.string().optional(),
-  ident_model: z.string().optional(),
-  extract_model: z.string().optional(),
-  people: z.string().optional(),
-  tags: z.string().optional(),
-  thresholds: z.string().optional(),
-  general_distance_threshold: z.number().min(0).max(1).optional(),
-  dob_distance_threshold: z.number().min(0).max(1).optional(),
-  ssn_distance_threshold: z.number().min(0).max(1).optional(),
-  drivers_distance_threshold: z.number().min(0).max(1).optional(),
-  state_id_distance_threshold: z.number().min(0).max(1).optional(),
-  passport_number_distance_threshold: z.number().min(0).max(1).optional(),
-  account_number_distance_threshold: z.number().min(0).max(1).optional(),
-  card_number_distance_threshold: z.number().min(0).max(1).optional(),
-  username_distance_threshold: z.number().min(0).max(1).optional(),
-  email_distance_threshold: z.number().min(0).max(1).optional(),
-  bio_distance_threshold: z.number().min(0).max(1).optional(),
-  medical_distance_threshold: z.number().min(0).max(1).optional(),
-  mrn_distance_threshold: z.number().min(0).max(1).optional(),
-  insurance_distance_threshold: z.number().min(0).max(1).optional(),
-  sentenceBatchSize: z.number().min(1).max(24).optional(),
-  owner: z.string().optional(),
+  steps: z.array(z.boolean()).optional(),
+  gdriveId: z.string().min(32).max(256).optional(),
+  status: z.string().max(256).optional(),
+  owner: ownerSchema,
   image: z.string().optional(),
   publishedAt: z.string().optional(),
   updatedAt: z.string().optional(),
+  visibility: VisibilitySchema,
+  embedding_model: z.string().optional(),
+  analysis_step: z.boolean().default(false).optional(),
+  ident_model: z.string(),
+  extract_model: z.string(),
+  // people: z.string().optional(),
+  // error_files: z.string().optional(),
+  people: z.array(IdentifiedPersonSchema).optional(),
+  error_files: z.array(errorFileSchema).optional(),
+  tags: z.string().optional(),
+  thresholds: z.string().optional(),
+  general_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  dob_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  ssn_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  drivers_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  state_id_distance_threshold: z
+    .number()
+    .min(0)
+    .max(100)
+    .step(0.01)
+    .default(10),
+  passport_number_distance_threshold: z
+    .number()
+    .min(0)
+    .max(100)
+    .step(0.01)
+    .default(10),
+  account_number_distance_threshold: z
+    .number()
+    .min(0)
+    .max(100)
+    .step(0.01)
+    .default(10),
+  card_number_distance_threshold: z
+    .number()
+    .min(0)
+    .max(100)
+    .step(0.01)
+    .default(10),
+  username_distance_threshold: z
+    .number()
+    .min(0)
+    .max(100)
+    .step(0.01)
+    .default(10),
+  email_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  bio_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  medical_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  mrn_distance_threshold: z.number().min(0).max(100).step(0.01).default(10),
+  insurance_distance_threshold: z
+    .number()
+    .min(0)
+    .max(100)
+    .step(0.01)
+    .default(10),
+  retrievalBreakPoint: z.number().min(0).default(3).optional(),
+  embeddingsSize: z
+    .number()
+    .min(512)
+    .max(1024 * 4)
+    .step(1)
+    .default(1024)
+    .optional(),
+  chunkOverlap: z.number().min(0).max(1024).default(256).optional(),
+  ingestBatchSize: z.number().min(1).max(4).step(1).default(3).optional(),
+  identBatchSize: z.number().min(1).max(5).step(1).default(3).optional(),
+  extractBatchSize: z.number().min(1).max(5).step(1).default(3).optional(),
   // tags: z.array(knowledgeTagSchema).optional(),
 });
 
-// Now, use the CollectionEntitySchema with the CollectionMetadataSchema for the metadata parameter
+// Now, use the CollectionEntitySchema with the collectionMetadataSchema for the metadata parameter
+
+export type CollectionMetadataSchema = z.infer<typeof collectionMetadataSchema>;
 export const collectionEntitySchema = z.object({
   id: z.string(),
   name: z.string(),
-  metadata: CollectionMetadataSchema,
+  metadata: collectionMetadataSchema,
 });
 
 // // Defining Entity with Zod
@@ -82,10 +218,19 @@ export type CollectionDTO = z.infer<typeof collectionDTOSchema>;
 // Applying the Companion Object Pattern
 export const CollectionDTO = {
   convertFromEntity(entity: Collection): CollectionDTO {
+    const metadataInput: CollectionMetadata = {
+      ...entity.metadata,
+    } as CollectionMetadata;
+    const metadata: CollectionMetadataSchema = {
+      ...metadataInput,
+      owner: JSON.parse(metadataInput.owner) as Owner,
+      people: JSON.parse(metadataInput.people) as IdentifiedPerson[],
+      error_files: JSON.parse(metadataInput.error_files) as ErrorFile[],
+    };
     const candidate: CollectionDTO = {
       id: entity.id,
       name: entity.name,
-      metadata: entity.metadata as CollectionMetadata,
+      metadata,
     };
     return collectionDTOSchema.parse(candidate);
   },
@@ -101,7 +246,32 @@ export class CollectionService {
   // private getCollectionsCollection() {
   //   return this.db.getCollection<CollectionEntity>({ name });
   // }
+  async getCollections(projectId: string): Promise<CollectionEntity[] | null> {
+    const collections = (await this.db.listCollections()).filter(
+      (col) => col && col.metadata?.projectId === projectId,
+    );
+    await unstable_cache(
+      async () => {
+        const data = (await this.db.listCollections()).filter(
+          (col) => col && col.metadata?.projectId === projectId,
+        );
+        return data;
+      },
+      ["collections-list"],
+      {
+        tags: ["knowledge", "collections", "main-page"],
+        revalidate: 10,
+      },
+    )();
 
+    // const entity = await this.db.getCollection({ name });
+    // return "entity ? CollectionDTO.convertFromEntity(entity) : null;"
+    return collections
+      ? collections.map((collection) =>
+          CollectionDTO.convertFromEntity(collection as Collection),
+        )
+      : null;
+  }
   async findCollection(name: string): Promise<CollectionEntity | null> {
     const entity = await this.db.getCollection({
       name,

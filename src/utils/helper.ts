@@ -19,8 +19,42 @@ export function formatFileSize(fileSizeInBytes: number, lang: Locale): string {
   }
 }
 
-export function formatNumberToInt(numberToFormat: number, lang: Locale): string {
+export function formatNumberToInt(
+  numberToFormat: number,
+  lang: Locale,
+): string {
   return new Intl.NumberFormat(lang, { maximumFractionDigits: 0 }).format(
     numberToFormat,
   );
+}
+
+type FormatNumberToPercenProps = {
+  numberToFormat: number;
+  minimumFractionDigits?: number;
+  maximumFractionDigits?: number;
+  lang?: Locale;
+};
+export function formatNumberToPercent({
+  numberToFormat,
+  minimumFractionDigits = 2,
+  maximumFractionDigits = 2,
+  lang = "en",
+}: FormatNumberToPercenProps): string {
+  return new Intl.NumberFormat(lang, {
+    style: "percent",
+    minimumFractionDigits,
+    maximumFractionDigits,
+  }).format(numberToFormat);
+}
+
+export function formatNumber({
+  numberToFormat,
+  minimumFractionDigits = 2,
+  maximumFractionDigits = 2,
+  lang = "en",
+}: FormatNumberToPercenProps): string {
+  return new Intl.NumberFormat(lang, {
+    minimumFractionDigits,
+    maximumFractionDigits,
+  }).format(numberToFormat);
 }

@@ -8,8 +8,11 @@ import { deleteCollection } from "@/src/utils/actions/collection";
 import { Trash2Icon } from "lucide-react";
 import { useTransition } from "react";
 
-type Props = { collectionName: string };
-const DeleteCollectionButton = ({ collectionName }: Props) => {
+type Props = {
+  collectionName: string;
+  size?: "xs" | "sm" | "lg" | "default" | null | undefined;
+};
+const DeleteCollectionButton = ({ collectionName ,size}: Props) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const deleteCollectionMutation = async () => {
@@ -29,14 +32,14 @@ const DeleteCollectionButton = ({ collectionName }: Props) => {
   return (
     <Button
       type="button"
+      size={size}
       disabled={isPending}
-      className="rounded-full border p-2 hover:text-red-500"
       onClick={async (e) => {
         await deleteCollectionMutation();
       }}
-      variant="ghost"
+      variant="destructive"
     >
-      <Trash2Icon className="h-6 w-6" />
+      <Trash2Icon className="h-4 w-4" />
     </Button>
   );
 };

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import { WithContext as ReactTags } from "react-tag-input";
 
 const KeyCodes = {

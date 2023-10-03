@@ -1,14 +1,12 @@
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover";
 import { DocumentMagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import { Footprints, LayoutList } from "lucide-react";
+import { Footprints } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -47,7 +45,9 @@ function ExtractedCellPopover({ values, projectId, collectionId }: Props) {
                 >
                   <div>
                     <Badge>
-                      {typeof value === "object" ? `${value.username} | ${value.password}` : typeof value === "boolean"
+                      {typeof value === "object"
+                        ? `${value.username} | ${value.password}`
+                        : typeof value === "boolean"
                         ? value
                           ? "YES"
                           : "NO"
@@ -62,8 +62,18 @@ function ExtractedCellPopover({ values, projectId, collectionId }: Props) {
                       <DocumentMagnifyingGlassIcon className="h-8 w-8 duration-150 ease-out hover:scale-105" />
                     </Link>
                     <Link
+                      title="Go to Analysis Step"
+                      href={`/project/${projectId}/traces/${trace}?observation=${
+                        observation.split("_")[0]
+                      }`}
+                    >
+                      <Footprints className="h-8 w-8 duration-150 ease-out hover:scale-105" />
+                    </Link>
+                    <Link
                       title="Go to Extraction Step"
-                      href={`/project/${projectId}/traces/${trace}?observation=${observation}`}
+                      href={`/project/${projectId}/traces/${trace}?observation=${
+                        observation.split("_")[1]
+                      }`}
                     >
                       <Footprints className="h-8 w-8 duration-150 ease-out hover:scale-105" />
                     </Link>
