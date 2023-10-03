@@ -81,7 +81,8 @@ console.log(filters)
 
   const traces = api.traces.all.useQuery({
     ...queryOptions,
-    ...paginationState,
+    page: paginationState.pageIndex,
+    limit: paginationState.pageSize,
     projectId,
   });
   const totalCount = traces.data?.slice(1)[0]?.totalCount ?? 0;
@@ -248,11 +249,7 @@ console.log(filters)
       },
       cell: ({ row }) => {
         const values: Score[] = row.getValue("scores");
-        return (
-          <div className="flex flex-wrap gap-x-3 gap-y-1">
-            <GroupedScoreBadges scores={values} inline />
-          </div>
-        );
+        return <GroupedScoreBadges scores={values} variant="headings" />;
       },
     },
     {
@@ -312,8 +309,13 @@ console.log(filters)
         data: convertToOptions(options.data),
       };
 
-  const isFiltered = () =>
-    Object.entries(queryOptions).filter(([_k, v]) => v !== null).length > 0;
+  const isFiltered = () => {
+    return (
+      Object.entries(queryOptions).filter(
+        ([k, v]) => v !== null && !omittedFilter.find((f) => f === k),
+      ).length > 0
+    );
+  };
 
   const resetFilters = () => {
     setQueryOptions({

@@ -2,12 +2,13 @@ import { createTRPCRouter } from "@/src/server/api/trpc";
 import { traceRouter } from "./routers/traces";
 import { generationsRouter } from "./routers/generations";
 import { scoresRouter } from "./routers/scores";
-import { dashboardRouter } from "@/src/features/dashboard/server/dashboardRouter";
+import { dashboardRouter } from "@/src/features/dashboard/server/dashboard-router";
 import { projectsRouter } from "@/src/features/projects/server/projectsRouter";
-import { apiKeysRouter } from "@/src/features/publicApi/server/apiKeyRouter";
+import { apiKeysRouter } from "@/src/features/public-api/server/apiKeyRouter";
 import { projectMembersRouter } from "@/src/features/rbac/server/projectMembersRouter";
 import { userRouter } from "@/src/server/api/routers/users";
-import { publishTracesRouter } from "@/src/features/publicTraces/server/publishTracesRouter";
+import { publishTracesRouter } from "@/src/features/public-traces/server/publishTracesRouter";
+import { datasetRouter } from "@/src/features/datasets/server/dataset-router";
 
 /**
  * This is the primary router for your server.
@@ -24,6 +25,7 @@ export const appRouter = createTRPCRouter({
   apiKeys: apiKeysRouter,
   projectMembers: projectMembersRouter,
   publishTraces: publishTracesRouter,
+  datasets: datasetRouter,
 });
 
 // export type definition of API

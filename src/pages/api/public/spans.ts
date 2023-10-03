@@ -6,8 +6,8 @@ import {
 } from "@prisma/client";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { z } from "zod";
-import { cors, runMiddleware } from "@/src/features/publicApi/server/cors";
-import { verifyAuthHeaderAndReturnScope } from "@/src/features/publicApi/server/apiAuth";
+import { cors, runMiddleware } from "@/src/features/public-api/server/cors";
+import { verifyAuthHeaderAndReturnScope } from "@/src/features/public-api/server/apiAuth";
 import { v4 as uuidv4 } from "uuid";
 import { backOff } from "exponential-backoff";
 import { RessourceNotFoundError } from "../../../utils/exceptions";
@@ -190,7 +190,7 @@ export default async function handler(
             authCheck.scope.projectId,
           ),
         {
-          numOfAttempts: 3,
+          numOfAttempts: 5,
           retry: (e: Error, attemptNumber: number) => {
             if (e instanceof RessourceNotFoundError) {
               console.log(

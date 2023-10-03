@@ -1,10 +1,11 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { z } from "zod";
-import { cors, runMiddleware } from "@/src/features/publicApi/server/cors";
+import { cors, runMiddleware } from "@/src/features/public-api/server/cors";
 import { prisma } from "@/src/server/db";
-import { verifyAuthHeaderAndReturnScope } from "@/src/features/publicApi/server/apiAuth";
+import { verifyAuthHeaderAndReturnScope } from "@/src/features/public-api/server/apiAuth";
 import { Prisma, type Trace } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
+import { paginationZod } from "@/src/utils/zod";
 
 const CreateTraceSchema = z.object({
   id: z.string().nullish(),
@@ -17,8 +18,7 @@ const CreateTraceSchema = z.object({
 });
 
 const GetTracesSchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().lte(100).default(50),
+  ...paginationZod,
   userId: z.string().nullish(),
   name: z.string().nullish(),
 });

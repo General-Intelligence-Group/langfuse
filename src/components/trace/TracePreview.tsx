@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { TraceAggUsageBadge } from "@/src/components/token-usage-badge";
-import { ManualScoreButton } from "@/src/features/manualScoring/components";
+import { ManualScoreButton } from "@/src/features/manual-scoring/components";
 import { Badge } from "@/src/components/ui/badge";
 
 export const TracePreview = ({
@@ -57,7 +57,11 @@ export const TracePreview = ({
         />
       </CardHeader>
       <CardContent>
-        <JSONView title="Metadata" json={trace.metadata} scrollable />
+        <JSONView
+          key={trace.id + "-metadata"}
+          title="Metadata"
+          json={trace.metadata}
+        />
         {scores.find((s) => s.observationId === null) ? (
           <div className="mt-5 flex flex-col gap-2">
             <h3>Scores</h3>
