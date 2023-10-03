@@ -24,12 +24,13 @@ export type ScoreFilterInput = Omit<
   "projectId" | "userId"
 >;
 
-type ScoreTableProps = {
+export default function ScoresTable({
+  projectId,
+  userId,
+}: {
   projectId: string;
   userId?: string;
-};
-
-export default function ScoresTable({ projectId, userId }: ScoreTableProps) {
+}) {
   const [queryOptions, setQueryOptions] = useState<ScoreFilterInput>({
     traceId: null,
   });
@@ -41,7 +42,8 @@ export default function ScoresTable({ projectId, userId }: ScoreTableProps) {
 
   const scores = api.scores.all.useQuery({
     ...queryOptions,
-    ...paginationState,
+    page: paginationState.pageIndex,
+    limit: paginationState.pageSize,
     userId: userId || null,
     projectId,
   });

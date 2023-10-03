@@ -7,6 +7,7 @@ import {
 } from "@/src/server/api/trpc";
 import { throwIfNoAccess } from "@/src/features/rbac/utils/checkAccess";
 import { Prisma, type Score } from "@prisma/client";
+import { paginationZod } from "@/src/utils/zod";
 
 const ScoreFilterOptions = z.object({
   traceId: z.array(z.string()).nullable(),
@@ -25,14 +26,17 @@ const scoresFilterPrismaCondition = (
 };
 
 const ScoreAllOptions = ScoreFilterOptions.extend({
-  pageIndex: z.number().int().gte(0).nullable().default(0),
-  pageSize: z.number().int().gte(0).lte(100).nullable().default(50),
+  ...paginationZod,
 });
 
 export const scoresRouter = createTRPCRouter({
   all: protectedProjectProcedure
     .input(ScoreAllOptions)
     .query(async ({ input, ctx }) => {
+      const userIdCondition = input.userId
+        ? Prisma.sql`AND t.user_id = ${input.userId}`
+        : Prisma.empty;
+
       const scores = await ctx.prisma.$queryRaw<
         Array<Score & { traceName: string; totalCount: number }>
       >(Prisma.sql`
@@ -49,10 +53,11 @@ export const scoresRouter = createTRPCRouter({
           FROM scores s
           JOIN traces t ON t.id = s.trace_id
           WHERE t.project_id = ${input.projectId}
+          ${userIdCondition}
           ${scoresFilterPrismaCondition(input)}
           ORDER BY s.timestamp DESC
-          LIMIT ${input.pageSize ?? 50}
-          OFFSET ${(input.pageIndex ?? 0) * (input.pageSize ?? 50)}
+          LIMIT ${input.limit}
+          OFFSET ${input.page * input.limit}
       `);
       return scores;
     }),

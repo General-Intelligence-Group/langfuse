@@ -8,16 +8,16 @@ import {
 } from "@prisma/client";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { z } from "zod";
-import { cors, runMiddleware } from "@/src/features/publicApi/server/cors";
-import { verifyAuthHeaderAndReturnScope } from "@/src/features/publicApi/server/apiAuth";
+import { cors, runMiddleware } from "@/src/features/public-api/server/cors";
+import { verifyAuthHeaderAndReturnScope } from "@/src/features/public-api/server/apiAuth";
 import { tokenCount } from "@/src/features/ingest/lib/usage";
 import { v4 as uuidv4 } from "uuid";
 import { backOff } from "exponential-backoff";
 import { RessourceNotFoundError } from "../../../utils/exceptions";
+import { paginationZod } from "@/src/utils/zod";
 
 const GenerationsGetSchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().lte(100).default(50),
+  ...paginationZod,
   name: z.string().nullish(),
   userId: z.string().nullish(),
 });
@@ -271,7 +271,7 @@ export default async function handler(
             authCheck.scope.projectId,
           ),
         {
-          numOfAttempts: 3,
+          numOfAttempts: 5,
           retry: (e: Error, attemptNumber: number) => {
             if (e instanceof RessourceNotFoundError) {
               console.log(
@@ -326,7 +326,6 @@ export default async function handler(
         authCheck.scope.projectId,
         searchParams,
       );
-
       return res.status(200).json({
         data: generations.map((generation) => {
           const { input, output, ...otherFields } = generation;
@@ -392,6 +391,7 @@ const getGenerations = async (
       AND o."type" = 'GENERATION'
       ${nameCondition}
       ${userIdCondition}
+      ORDER by o."start_time" DESC
       OFFSET ${(query.page - 1) * query.limit}
       LIMIT ${query.limit}
     `,

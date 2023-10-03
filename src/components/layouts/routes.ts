@@ -1,9 +1,12 @@
+import { type Flag } from "@/src/features/feature-flags/types";
 import {
+  Database,
   FlaskConical,
   LayoutDashboard,
   LifeBuoy,
   LineChart,
   ListTree,
+  type LucideIcon,
   Settings,
   TextSelect,
   UsersIcon,
@@ -11,7 +14,12 @@ import {
 } from "lucide-react";
 import { BuildingLibraryIcon, WrenchScrewdriverIcon, ChatBubbleBottomCenterIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 
-export const ROUTES = [
+export const ROUTES: Array<{
+  name: string;
+  pathname: string;
+  icon: LucideIcon;
+  featureFlag?: Flag;
+}> = [
   {
     name: "Dashboard",
     pathname: `/project/[projectId]`,
@@ -61,6 +69,12 @@ export const ROUTES = [
     name: "Users",
     pathname: `/project/[projectId]/users`,
     icon: UsersIcon,
+  },
+  {
+    name: "Datasets",
+    pathname: `/project/[projectId]/datasets`,
+    icon: Database,
+    featureFlag: "datasets",
   },
   {
     name: "Settings",

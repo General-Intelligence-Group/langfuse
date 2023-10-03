@@ -40,10 +40,18 @@ const unauthenticatedPaths = ["/auth/sign-in", "/auth/sign-up"];
 export default function Layout(props: PropsWithChildren) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
+  const session = useSession();
+
   const projectId = router.query.projectId as string | undefined;
   const navigation = ROUTES.filter(
     ({ pathname }) => projectId || !pathname.includes("[projectId]"),
   )
+    .filter(
+      ({ featureFlag }) =>
+        featureFlag === undefined ||
+        env.NEXT_PUBLIC_ENABLE_EXPERIMENTAL_FEATURES === "true" ||
+        session.data?.user?.featureFlags[featureFlag],
+    )
     .map(({ pathname, ...rest }) => ({
       pathname,
       href: pathname.replace("[projectId]", projectId ?? ""),
@@ -56,8 +64,6 @@ export default function Layout(props: PropsWithChildren) {
     }));
 
   const currentPathName = navigation.find(({ current }) => current)?.name;
-
-  const session = useSession();
 
   const projects = api.projects.all.useQuery(undefined, {
     enabled: session.status === "authenticated",
@@ -500,7 +506,8 @@ export default function Layout(props: PropsWithChildren) {
         </div>
         <div className="xl:pl-72">
           {env.NEXT_PUBLIC_DEMO_PROJECT_ID &&
-          projectId === env.NEXT_PUBLIC_DEMO_PROJECT_ID ? (
+          projectId === env.NEXT_PUBLIC_DEMO_PROJECT_ID &&
+          !session.data?.user?.email?.endsWith("@langfuse.com") ? (
             <div className="flex w-full items-center border-b border-yellow-500  bg-yellow-100 px-4 py-2 xl:sticky xl:top-0 xl:z-40">
               <div className="flex flex-1 flex-wrap gap-1">
                 <div className="flex items-center gap-1">
