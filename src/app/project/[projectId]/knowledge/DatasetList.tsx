@@ -26,21 +26,21 @@ const DatasetList = ({ datasets, lang }: Props) => {
   const searchString = useKnowledgeStore((state) => state.searchString);
   console.log("searchString: ", searchString);
   return (
-    <main>
+    <main className="w-full">
         <h1 className="uppercase tracking-widest text-2xl">Your datasets</h1>
 
-      <Table className="w-full text-xs">
+      <Table className="w-full text-base">
         <TableCaption>Your datasets.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="text-left">#</TableHead>
-            <TableHead className="">Status</TableHead>
-            <TableHead className="">Visibility</TableHead>
-            <TableHead className="">Title</TableHead>
-            <TableHead className="">
+            <TableHead>Status</TableHead>
+            <TableHead>Visibility</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>
               General Info
             </TableHead>
-            <TableHead className="">Actions</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
 

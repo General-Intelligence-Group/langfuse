@@ -13,8 +13,6 @@ const knowledgeCategory = {
 } as const;
 
 const VisibilitySchema = z.nativeEnum(knowledgeCategory);
-// Create a Zod schema for the CollectionMetadata type
-// Create a Zod schema for the CollectionMetadata type
 export const graphConnectionSchema = z.object({
   id: z.string(),
   weight: z.number(),
@@ -59,45 +57,118 @@ const fullNameSchema = z.object({
 export type FullName = z.infer<typeof fullNameSchema>;
 
 const dataPointSchema = z.object({
-  // value: z.string(),
+  verified: z.boolean().nullable(),
   value: z
-    .string()
+    .object({
+      street_no: z.string().optional().nullable(),
+      apartment_no: z.string().optional().nullable(),
+      city: z.string().optional().nullable(),
+      state: z.string().optional().nullable(),
+      zip: z.string().optional().nullable(),
+      country: z.string().optional().nullable(),
+    })
+    .or(z.string())
     .or(z.boolean())
     .or(
       z.object({
-        username: z.string(),
-        password: z.string(),
+        username: z.string().optional().nullable(),
+        password: z.string().optional().nullable(),
+      }),
+    )
+    .or(
+      z.object({
+        financial_account_number: z.string().optional().nullable(),
+        account_pin: z.string().optional().nullable(),
+        security_code: z.string().optional().nullable(),
+        routing_number: z.string().optional().nullable(),
       }),
     ),
   chunk_source: z.string(),
   document_source: z.string(),
   observation: z.string(),
   trace: z.string(),
+  relevance_distance: z.number().optional(),
+  relevance_score: z.number().optional(),
 });
 export type DataPoint = z.infer<typeof dataPointSchema>;
 
 const credentialsSchema = z.object({
-  // value: z.string(),
-  value: z
-    .object({
-      username: z.string().optional().nullable(),
-      password: z.string().optional().nullable(),
-    })
-    .optional(),
+  verified: z.boolean().nullable(),
+  value: z.object({
+    username: z.string().optional().nullable(),
+    password: z.string().optional().nullable(),
+  }),
   chunk_source: z.string(),
   document_source: z.string(),
   observation: z.string(),
   trace: z.string(),
+  relevance_distance: z.number().optional(),
+  relevance_score: z.number().optional(),
 });
 export type Credentials = z.infer<typeof credentialsSchema>;
+
+const payCardSchema = z.object({
+  verified: z.boolean().nullable(),
+  value: z.object({
+    payment_card_number: z.string().optional().nullable(),
+    cvv: z.string().optional().nullable(),
+    expiration_date: z.string().optional().nullable(),
+  }),
+  chunk_source: z.string(),
+  document_source: z.string(),
+  observation: z.string(),
+  trace: z.string(),
+  relevance_distance: z.number().optional(),
+  relevance_score: z.number().optional(),
+});
+export type PaymentCard = z.infer<typeof payCardSchema>;
+
+const addressSchema = z.object({
+  verified: z.boolean().nullable(),
+  value: z.object({
+    street_no: z.string().optional().nullable(),
+    apartment_no: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    state: z.string().optional().nullable(),
+    zip: z.string().optional().nullable(),
+    country: z.string().optional().nullable(),
+  }),
+  chunk_source: z.string(),
+  document_source: z.string(),
+  observation: z.string(),
+  trace: z.string(),
+  relevance_distance: z.number().optional(),
+  relevance_score: z.number().optional(),
+});
+export type Address = z.infer<typeof addressSchema>;
+
+const finAccountSchema = z.object({
+  verified: z.boolean().nullable(),
+  value: z.object({
+    financial_account_number: z.string().optional().nullable(),
+    account_pin: z.string().optional().nullable(),
+    security_code: z.string().optional().nullable(),
+    routing_number: z.string().optional().nullable(),
+  }),
+  chunk_source: z.string(),
+  document_source: z.string(),
+  observation: z.string(),
+  trace: z.string(),
+  relevance_distance: z.number().optional(),
+  relevance_score: z.number().optional(),
+});
+
+export type FinancialAccount = z.infer<typeof finAccountSchema>;
+
 const IdentifiedPersonSchema = z.object({
   full_name: fullNameSchema,
   date_of_birth: z.array(dataPointSchema).optional(),
   social_security_number: z.array(dataPointSchema).optional(),
   state_id_or_drivers_license: z.array(dataPointSchema).optional(),
   passport_number: z.array(dataPointSchema).optional(),
-  financial_account_number: z.array(dataPointSchema).optional(),
-  payment_card_number: z.array(dataPointSchema).optional(),
+  financial_account_number: z.array(finAccountSchema).optional().nullable(),
+  address: z.array(addressSchema).optional().nullable(),
+  payment_card_number: z.array(payCardSchema).optional().nullable(),
   username_and_password: z.array(credentialsSchema).optional().nullable(),
   biometric_data: z.array(dataPointSchema).optional(),
   medical_information: z.array(dataPointSchema).optional(),
@@ -188,9 +259,9 @@ export const collectionMetadataSchema = z.object({
     .default(1024)
     .optional(),
   chunkOverlap: z.number().min(0).max(1024).default(256).optional(),
-  ingestBatchSize: z.number().min(1).max(4).step(1).default(3).optional(),
+  ingestBatchSize: z.number().min(1).max(25).step(1).default(3).optional(),
   identBatchSize: z.number().min(1).max(5).step(1).default(3).optional(),
-  extractBatchSize: z.number().min(1).max(5).step(1).default(3).optional(),
+  extractBatchSize: z.number().min(1).max(10).step(1).default(3).optional(),
   // tags: z.array(knowledgeTagSchema).optional(),
 });
 
@@ -272,7 +343,7 @@ export class CollectionService {
         )
       : null;
   }
-  async findCollection(name: string): Promise<CollectionEntity | null> {
+  async findCollection(name: string): Promise<CollectionDTO | null> {
     const entity = await this.db.getCollection({
       name,
       // metadata: {
@@ -282,9 +353,19 @@ export class CollectionService {
       //   visibility: "public",
       // },
     });
+    const convertedEntity = entity
+      ? CollectionDTO.convertFromEntity(entity)
+      : null;
+    // console.log(convertedEntity, "convertedEntity");
+    const metadata = convertedEntity?.metadata;
+    const people = metadata?.people;
+    // console.log(metadata, "metadata");
+    if (people) console.log(people[1], "peopleLog");
 
     // const entity = await this.db.getCollection({ name });
-    return entity ? CollectionDTO.convertFromEntity(entity) : null;
+    return convertedEntity && metadata
+      ? { ...convertedEntity, metadata: { ...metadata } }
+      : null;
     // return entity ? CollectionDTO.convertFromEntity(entity) : null;
   }
 

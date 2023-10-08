@@ -67,9 +67,6 @@ export const DocumentDTO = {
     const uniqueElements =
       entity.length > 0
         ? entity.filter((metadata) => {
-            // console.log(metadata?.title);
-            // console.log(metadata?.author);
-            // console.log(metadata?.version);
             //   if (!metadata) return false;
             const combinationKey: string = `${metadata?.title}-${metadata?.version}-${metadata?.author}`;
             //   const combinationKey: string = `${metadata?.title}-${metadata?.version}-${metadata?.author}`;
@@ -77,7 +74,6 @@ export const DocumentDTO = {
             // Check if the combinationKey already exists in the uniqueCombinations object
             if (!uniqueCombinations[combinationKey]) {
               // If the combination is not found, add it to the uniqueCombinations object
-              // console.log("EXISTs");
 
               uniqueCombinations[combinationKey] = true;
               return true;
@@ -90,7 +86,7 @@ export const DocumentDTO = {
     const returnElements: DocumentDTO[] = [];
     if (uniqueElements.length > 0) {
       uniqueElements.forEach((element) => {
-        console.log(element);
+        // console.log(element);
         const candidate: DocumentDTO = {
           n_token: element?.n_token as number,
           n_people: element?.n_people as number,

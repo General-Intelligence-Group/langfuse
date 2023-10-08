@@ -69,36 +69,21 @@ const STEPS: Steps = [
     title: "Ingestion",
     text: "Read Files & Embed Text Documents & Metadata found in Google Drive Folder.",
   },
-  { id: "id", title: "Identify", text: "Identify people with NER on-the-fly." },
+  { id: "id", title: "Identification", text: "Identify people with NER on-the-fly." },
   {
     id: "nppi_extract",
-    title: "NPPI Trigger Flagging & Extraction",
-    text: "Automatically flag & extract NPPI triggers.",
+    title: "Flagging & Extraction",
+    text: "Automatically flag NPPI triggers & extract data points.",
   },
   {
     id: "nppi_analysis",
-    title: "Analysis Step",
-    text: "Enable pre-emptive analysis step before NPPI trigger extraction to give the AI `time to think`.",
-  },
-  {
-    id: "nppi_dd",
-    title: "De-Doubling",
-    text: "Reflection Step to automatically solve false double-assignments of NPPI triggers.",
-  },
-  {
-    id: "capture_extract",
-    title: "Capture Data Points",
-    text: "Extract CAPTURE data points for found NPPI triggers.",
-  },
-  {
-    id: "capture_analysis",
-    title: "Analysis Step",
+    title: "Analysis",
     text: "Enable pre-emptive analysis step before data point extraction to give the AI `time to think`.",
   },
   {
-    id: "capture_dd",
-    title: "De-Doubling",
-    text: "Reflection Step to automatically solve false double-assignments of CAPTURE data points.",
+    id: "nppi_dd",
+    title: "Conflict Resolution",
+    text: "Reflection Step to automatically solve false double-assignments of data points.",
   },
 ];
 const THRESHOLDS = [
@@ -128,37 +113,42 @@ const AddCollection = ({
     resolver: zodResolver(collectionMetadataSchema),
     defaultValues: {
       steps: Array(8).fill(true),
-      ingestBatchSize: 3,
-      identBatchSize: 3,
-      extractBatchSize: 3,
+      ingestBatchSize: 25,
+      identBatchSize: 5,
+      extractBatchSize: 2,
       visibility: "private",
-      description: "",
-      gdriveId: "1mkW3UBDNHJlYWKS3GI2s16cjxsryGj5m",
-      retrievalBreakPoint: 3,
+      title: "TestSet",
+      description: "E-Mails & PDFs",
+      gdriveId: "1idOAvCWQ1fpPBXJ_TrZtZiZfvpE9_oVa", // SightPath "1idOAvCWQ1fpPBXJ_TrZtZiZfvpE9_oVa", // Test
+      // "1qHal3QvY83G1UnEBDsJNNvJ0rQFN6s_Q", //"1idOAvCWQ1fpPBXJ_TrZtZiZfvpE9_oVa", //"1kishbsoUM7T_r8Zud9c6cRqUPRpYxhZp", // "1mkW3UBDNHJlYWKS3GI2s16cjxsryGj5m",
+      retrievalBreakPoint: 0,
       ident_model: "gpt-3",
       extract_model: "gpt-3",
       embedding_model: "openai",
       analysis_step: true,
       general_distance_threshold: 0,
       embeddingsSize: 1 * 1024 + 1 * 256 + 1 * 128,
-      chunkOverlap: 960,
-      dob_distance_threshold: 50,
-      ssn_distance_threshold: 43.86,
-      drivers_distance_threshold: 42.57,
-      state_id_distance_threshold: 40.86,
-      passport_number_distance_threshold: 0,
-      account_number_distance_threshold: 41.96,
-      card_number_distance_threshold: 0,
-      username_distance_threshold: 47.81,
-      email_distance_threshold: 50,
-      bio_distance_threshold: 0,
-      medical_distance_threshold: 40.34,
-      mrn_distance_threshold: 40,
-      insurance_distance_threshold: 0,
+      chunkOverlap: 512, // ,
+      dob_distance_threshold: 55,
+      ssn_distance_threshold: 47,
+      drivers_distance_threshold: 42.57, //
+      state_id_distance_threshold: 42.57, // 40.86,
+      passport_number_distance_threshold: 42.57, // 50,
+      account_number_distance_threshold: 47,
+      card_number_distance_threshold: 50, //,
+      username_distance_threshold: 53, // ,
+      email_distance_threshold: 0, // 50,
+      bio_distance_threshold: 50, // ,
+      medical_distance_threshold: 40, // 40.34,
+      mrn_distance_threshold: 50, // 40,
+      insurance_distance_threshold: 45, // 50,
     },
   });
   const knowledgeTags: KnowledgeTag[] = [];
   const [tags, setTags] = useState<KnowledgeTag[]>(knowledgeTags);
+  const [showStep1Config, setShowStep1Config] = useState<boolean>(false);
+  const [showStep2Config, setShowStep2Config] = useState<boolean>(false);
+  const [showStep3Config, setShowStep3Config] = useState<boolean>(false);
 
   const [isPending, startTransition] = useTransition();
   function onSubmit(data: z.infer<typeof collectionMetadataSchema>) {
@@ -347,7 +337,7 @@ const AddCollection = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />{" "}
+            />
             <FormField
               control={form.control}
               name="gdriveId"
@@ -379,7 +369,7 @@ const AddCollection = ({
                 control={form.control}
                 name={`steps.${idx}`}
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormItem className="flex flex-row items-start justify-between rounded-lg border p-4">
                     <div className="mr-8 flex-1 space-y-0.5">
                       <FormLabel className="text-base">
                         {idx + 1}. {title}
@@ -388,291 +378,336 @@ const AddCollection = ({
                       {field.value && (
                         <div className="w-full">
                           {id === "embed" && (
-                            <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3">
-                              <FormField
-                                control={form.control}
-                                name="ingestBatchSize"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      No. Concurrent Processes
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        step={1}
-                                        defaultValue={field.value}
-                                        max={4}
-                                        min={1}
-                                        onChange={(e) => {
-                                          // Convert the input value to a number using parseInt
-                                          const parsedValue = parseInt(
-                                            e.target.value,
-                                            10,
-                                          );
-                                          field.onChange(parsedValue); // Update the field value with the parsed number
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription />
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="embeddingsSize"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Embeddings Size</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        step={1}
-                                        defaultValue={field.value}
-                                        max={4 * 1024}
-                                        min={512}
-                                        onChange={(e) => {
-                                          // Convert the input value to a number using parseInt
-                                          const parsedValue = parseInt(
-                                            e.target.value,
-                                            10,
-                                          );
-                                          field.onChange(parsedValue); // Update the field value with the parsed number
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription />
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="chunkOverlap"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Chunk Overlap</FormLabel>
-                                    <FormControl>
-                                      {/* <Input type="number" step={1} max={12} min={1} {...field} /> */}
-                                      <Input
-                                        type="number"
-                                        step={1}
-                                        defaultValue={field.value}
-                                        max={4 * 1024}
-                                        min={0}
-                                        onChange={(e) => {
-                                          // Convert the input value to a number using parseInt
-                                          const parsedValue = parseInt(
-                                            e.target.value,
-                                            10,
-                                          );
-                                          field.onChange(parsedValue); // Update the field value with the parsed number
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription />
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                            <>
+                              <Button
+                                onClick={() =>
+                                  setShowStep1Config(!showStep1Config)
+                                }
+                                type="button"
+                                variant="ghost"
+                              >
+                                Advanced Configuration
+                              </Button>
+                              {showStep1Config && (
+                                <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3">
+                                  <FormField
+                                    control={form.control}
+                                    name="ingestBatchSize"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          No. Concurrent Processes
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            step={1}
+                                            defaultValue={field.value}
+                                            max={25}
+                                            min={1}
+                                            onChange={(e) => {
+                                              // Convert the input value to a number using parseInt
+                                              const parsedValue = parseInt(
+                                                e.target.value,
+                                                10,
+                                              );
+                                              field.onChange(parsedValue); // Update the field value with the parsed number
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormDescription />
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name="embeddingsSize"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Embeddings Size</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            step={1}
+                                            defaultValue={field.value}
+                                            max={4 * 1024}
+                                            min={512}
+                                            onChange={(e) => {
+                                              // Convert the input value to a number using parseInt
+                                              const parsedValue = parseInt(
+                                                e.target.value,
+                                                10,
+                                              );
+                                              field.onChange(parsedValue); // Update the field value with the parsed number
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormDescription />
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name="chunkOverlap"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Chunk Overlap</FormLabel>
+                                        <FormControl>
+                                          {/* <Input type="number" step={1} max={12} min={1} {...field} /> */}
+                                          <Input
+                                            type="number"
+                                            step={1}
+                                            defaultValue={field.value}
+                                            max={4 * 1024}
+                                            min={0}
+                                            onChange={(e) => {
+                                              // Convert the input value to a number using parseInt
+                                              const parsedValue = parseInt(
+                                                e.target.value,
+                                                10,
+                                              );
+                                              field.onChange(parsedValue); // Update the field value with the parsed number
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormDescription />
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              )}
+                            </>
                           )}
                           {id === "id" && (
-                            <div className="grid w-full grid-cols-2 gap-4">
-                              <FormField
-                                control={form.control}
-                                name="ident_model"
-                                render={({ field }) => (
-                                  <FormItem className="space-y-3">
-                                    <FormLabel>LLM</FormLabel>
-                                    <FormControl>
-                                      <RadioGroup
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        className="flex flex-col space-y-1 md:flex-col"
-                                      >
-                                        {GENERATION_MODELS.map((model) => (
-                                          <FormItem
-                                            key={model}
-                                            className="flex items-center space-x-3 space-y-0"
+                            <>
+                              <Button
+                                onClick={() =>
+                                  setShowStep2Config(!showStep2Config)
+                                }
+                                type="button"
+                                variant="ghost"
+                              >
+                                Advanced Configuration
+                              </Button>
+                              {showStep2Config && (
+                                <div className="grid w-full grid-cols-2 gap-4">
+                                  <FormField
+                                    control={form.control}
+                                    name="ident_model"
+                                    render={({ field }) => (
+                                      <FormItem className="space-y-3">
+                                        <FormLabel>LLM</FormLabel>
+                                        <FormControl>
+                                          <RadioGroup
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                            className="flex flex-col space-y-1 md:flex-col"
                                           >
-                                            <FormControl>
-                                              <RadioGroupItem value={model} />
-                                            </FormControl>
-                                            <FormLabel className="font-normal">
-                                              {model}
-                                            </FormLabel>
-                                          </FormItem>
-                                        ))}
-                                      </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="identBatchSize"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      No. Concurrent Processes
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        step={1}
-                                        defaultValue={field.value}
-                                        max={5}
-                                        min={1}
-                                        onChange={(e) => {
-                                          // Convert the input value to a number using parseInt
-                                          const parsedValue = parseInt(
-                                            e.target.value,
-                                            10,
-                                          );
-                                          field.onChange(parsedValue); // Update the field value with the parsed number
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription />
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                                            {GENERATION_MODELS.map((model) => (
+                                              <FormItem
+                                                key={model}
+                                                className="flex items-center space-x-3 space-y-0"
+                                              >
+                                                <FormControl>
+                                                  <RadioGroupItem
+                                                    value={model}
+                                                  />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                  {model}
+                                                </FormLabel>
+                                              </FormItem>
+                                            ))}
+                                          </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name="identBatchSize"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          No. Concurrent Processes
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            step={1}
+                                            defaultValue={field.value}
+                                            max={5}
+                                            min={1}
+                                            onChange={(e) => {
+                                              // Convert the input value to a number using parseInt
+                                              const parsedValue = parseInt(
+                                                e.target.value,
+                                                10,
+                                              );
+                                              field.onChange(parsedValue); // Update the field value with the parsed number
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormDescription />
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              )}
+                            </>
                           )}
                           {id === "nppi_extract" && (
-                            <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3">
-                              <FormField
-                                control={form.control}
-                                name="extract_model"
-                                render={({ field }) => (
-                                  <FormItem className="space-y-3">
-                                    <FormLabel>Extraction Model</FormLabel>
-                                    <FormControl>
-                                      <RadioGroup
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        className="flex flex-col space-y-1 md:flex-col"
-                                      >
-                                        {GENERATION_MODELS.map((model) => (
-                                          <FormItem
-                                            key={model}
-                                            className="flex items-center space-x-3 space-y-0"
+                            <>
+                              <Button
+                                onClick={() =>
+                                  setShowStep3Config(!showStep3Config)
+                                }
+                                type="button"
+                                variant="ghost"
+                              >
+                                Advanced Configuration
+                              </Button>
+                              {showStep3Config && (
+                                <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3">
+                                  <FormField
+                                    control={form.control}
+                                    name="extract_model"
+                                    render={({ field }) => (
+                                      <FormItem className="space-y-3">
+                                        <FormLabel>Extraction Model</FormLabel>
+                                        <FormControl>
+                                          <RadioGroup
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                            className="flex flex-col space-y-1 md:flex-col"
                                           >
-                                            <FormControl>
-                                              <RadioGroupItem value={model} />
-                                            </FormControl>
-                                            <FormLabel className="font-normal">
-                                              {model}
-                                            </FormLabel>
-                                          </FormItem>
-                                        ))}
-                                      </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="retrievalBreakPoint"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Retrieval Break Point</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        step={1}
-                                        defaultValue={field.value}
-                                        min={0}
-                                        onChange={(e) => {
-                                          // Convert the input value to a number using parseInt
-                                          const parsedValue = parseInt(
-                                            e.target.value,
-                                            10,
-                                          );
-                                          field.onChange(parsedValue); // Update the field value with the parsed number
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription />
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="extractBatchSize"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      No. Concurrent Processes
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        step={1}
-                                        defaultValue={field.value}
-                                        max={5}
-                                        min={1}
-                                        onChange={(e) => {
-                                          // Convert the input value to a number using parseInt
-                                          const parsedValue = parseInt(
-                                            e.target.value,
-                                            10,
-                                          );
-                                          field.onChange(parsedValue); // Update the field value with the parsed number
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription />
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <div className="col-span-3">
-                                <h6 className="text-sm font-medium">
-                                  Relevance Thresholds
-                                </h6>
-                                <div className="flex flex-wrap justify-between gap-2">
-                                  {THRESHOLDS.map((t) => (
-                                    <FormField
-                                      control={form.control}
-                                      key={t}
-                                      name={t}
-                                      render={({ field }) => (
-                                        <FormItem className="flex-1">
-                                          <FormLabel className="text-center uppercase">
-                                            {t.split("_")[0]}
-                                            <br />
-                                            {formatNumber({
-                                              numberToFormat: field.value,
-                                              maximumFractionDigits: 2,
-                                            })}
-                                          </FormLabel>
-                                          <FormControl>
-                                            <Slider
-                                              min={0}
-                                              max={100}
-                                              step={0.01}
-                                              defaultValue={[field.value]}
-                                              onValueChange={(vals) => {
-                                                field.onChange(vals[0]);
-                                              }}
-                                            />
-                                          </FormControl>
-                                          <FormDescription />
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                  ))}
+                                            {GENERATION_MODELS.map((model) => (
+                                              <FormItem
+                                                key={model}
+                                                className="flex items-center space-x-3 space-y-0"
+                                              >
+                                                <FormControl>
+                                                  <RadioGroupItem
+                                                    value={model}
+                                                  />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                  {model}
+                                                </FormLabel>
+                                              </FormItem>
+                                            ))}
+                                          </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name="retrievalBreakPoint"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          Retrieval Break Point
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            step={1}
+                                            defaultValue={field.value}
+                                            min={0}
+                                            onChange={(e) => {
+                                              // Convert the input value to a number using parseInt
+                                              const parsedValue = parseInt(
+                                                e.target.value,
+                                                10,
+                                              );
+                                              field.onChange(parsedValue); // Update the field value with the parsed number
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormDescription />
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name="extractBatchSize"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          No. Concurrent Processes
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            step={1}
+                                            defaultValue={field.value}
+                                            max={10}
+                                            min={1}
+                                            onChange={(e) => {
+                                              // Convert the input value to a number using parseInt
+                                              const parsedValue = parseInt(
+                                                e.target.value,
+                                                10,
+                                              );
+                                              field.onChange(parsedValue); // Update the field value with the parsed number
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormDescription />
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <div className="col-span-3">
+                                    <h6 className="text-sm font-medium">
+                                      Relevance Thresholds
+                                    </h6>
+                                    <div className="flex flex-wrap justify-between gap-2">
+                                      {THRESHOLDS.map((t) => (
+                                        <FormField
+                                          control={form.control}
+                                          key={t}
+                                          name={t}
+                                          render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                              <FormLabel className="text-center uppercase">
+                                                {t.split("_")[0]}
+                                                <br />
+                                                {formatNumber({
+                                                  numberToFormat: field.value,
+                                                  maximumFractionDigits: 2,
+                                                })}
+                                              </FormLabel>
+                                              <FormControl>
+                                                <Slider
+                                                  min={0}
+                                                  max={100}
+                                                  step={0.01}
+                                                  defaultValue={[field.value]}
+                                                  onValueChange={(vals) => {
+                                                    field.onChange(vals[0]);
+                                                  }}
+                                                />
+                                              </FormControl>
+                                              <FormDescription />
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
-                            </div>
+                              )}
+                            </>
                           )}
                           {id === "nppi_analysis" && (
                             <div className="grid w-full grid-cols-2 gap-4"></div>
@@ -692,7 +727,7 @@ const AddCollection = ({
                         </div>
                       )}
                     </div>
-                    <FormControl>
+                    <FormControl className="">
                       <Switch
                         checked={field.value}
                         // onCheckedChange={field.onChange}

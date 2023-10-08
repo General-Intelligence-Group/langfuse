@@ -40,7 +40,7 @@ export default async function KnowledgePage({
 
   return (
     <>
-      <main className="mx-auto max-w-7xl p-6">
+      <main className="w-full p-6">
         {collections && (
           <DatasetList
             user={user}

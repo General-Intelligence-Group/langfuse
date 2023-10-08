@@ -34,7 +34,7 @@ function DocumentRow({
       <TableCell>{n_char && formatNumberToInt(n_char, lang)}</TableCell>
       <TableCell>{n_token && formatNumberToInt(n_token, lang)}</TableCell>
       <TableCell>{n_people && formatNumberToInt(n_people, lang)}</TableCell>
-      <TableCell className="grid">
+      <TableCell className="grid justify-end">
         <Link
           title="Details"
           href={`/project/${projectId}/knowledge/${collectionName}/document/${metadata.source_uuid}`}

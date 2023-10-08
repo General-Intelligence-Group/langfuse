@@ -26,21 +26,15 @@ export default async function KnowledgePage({
   const collections = (await vecStoreClient.listCollections()).filter(
     (col) => col && col.metadata?.projectId === projectId,
   );
-  // TODO 1. Google Drive connector
-  // TODO 2. Archive extraction & Attachment ingestion
-  
-  // TODO 5. Reflection after extraction with gpt-3
-  // TODO 6. Reflection on double-bind with gpt-3
-  // TODO 1. Re-Run & Skip steps
-  // TODO 7. Benchmark base for each NPPI trigger
+  // TODO 1. Human verification datapoint
+  // TODO 2. Human de doubling
+  // TODO 3. Auto Human de doubling with gpt-3
   // TODO Semantic Prisma on NNPI & Capture fields
-  // TODO 8. Human verification on NPPI triggers step --> Attach to chunk --> Block value in chunk for other persons
-  // TODO 9. Capture datapoint recursion - Retrieve -> Analyze -> Extract -> Reflect
-  // TODO 10. Human verification on Capture data points
   // TODO 11. chat retrieval single / multiple
-  // TODO 12. Dedouble people with same name with reflection
+  // TODO 12. De-double people with same name with reflection
 
-  
+
+  // TODO 1. Re-Run & Skip steps
   // TODO Optimize token usage by blocking Person / datapoint pairs already extracted from specific document
   // TODO Semantic search for capture fields
   // TODO chat agent knowledge & tools

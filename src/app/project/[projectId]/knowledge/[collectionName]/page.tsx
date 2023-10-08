@@ -99,7 +99,7 @@ const CollectionPage = async ({
     : [];
 
   return (
-    <main className="mx-auto flex h-full max-w-7xl flex-1 flex-col items-center justify-between gap-5 pt-4">
+    <main className="flex h-full w-full flex-1 flex-col items-center justify-between gap-5 pt-4">
       <CollectionHeader
         collectionName={collectionName}
         user={user}
@@ -107,18 +107,6 @@ const CollectionPage = async ({
         lang={lang}
       />
       <section className="w-full">
-        <h2 className="flex gap-1 text-lg font-bold">
-          <Badge>{documents && documents.length}</Badge>
-          <span>Documents in Dataset</span>
-        </h2>
-
-        <CollectionList
-          collectionName={collectionName}
-          projectId={projectId}
-          user={user}
-          knowledge={documents}
-          lang={lang}
-        />
         {metadata.error_files && metadata.error_files.length > 0 && (
           <>
             <h2 className="flex gap-1 text-lg font-bold">
@@ -153,9 +141,22 @@ const CollectionPage = async ({
             people={filteredPeople}
           />
         )}
-      </section>
+        <h2 className="mb-3 text-4xl uppercase tracking-widest text-primary/60 underline decoration-secondary-foreground/20 underline-offset-4">
+          Files
+        </h2>
 
-      {/* <footer>Collection footer</footer> */}
+        <div className="flex gap-1 text-lg font-bold">
+          <Badge>{documents && documents.length}</Badge>
+          <span>Documents in Dataset</span>
+        </div>
+        <CollectionList
+          collectionName={collectionName}
+          projectId={projectId}
+          user={user}
+          knowledge={documents}
+          lang={lang}
+        />
+      </section>
     </main>
   );
 };

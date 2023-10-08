@@ -34,7 +34,7 @@ const CollectionList = ({
 
   return (
     <main className="w-full">
-      <Table className="w-full text-xs">
+      <Table className="w-full">
         <TableCaption>Documents in dataset.</TableCaption>
         {!error ? (
           <TableHeader>
@@ -43,27 +43,24 @@ const CollectionList = ({
               {/* <TableHead className="flex items-center gap-2 text-center">
               <MagicWandIcon className="inline h-6 w-6" />
             </TableHead> */}
-              <TableHead className="w-24">Filename</TableHead>
-              <TableHead className="w-24">Type</TableHead>
+              <TableHead className="">Filename</TableHead>
+              <TableHead className="">Type</TableHead>
               <TableHead className="">File Size</TableHead>
               <TableHead className=""># Characters</TableHead>
               <TableHead className=""># Tokens</TableHead>
               <TableHead className=""># People</TableHead>
-              <TableHead className="">Actions</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
         ) : (
           <TableHeader>
             <TableRow>
               <TableHead className="text-left">#</TableHead>
-              {/* <TableHead className="flex items-center gap-2 text-center">
-              <MagicWandIcon className="inline h-6 w-6" />
-            </TableHead> */}
-              <TableHead className="w-24">Filename</TableHead>
-              <TableHead className="w-24">Type</TableHead>
+              <TableHead className="">Filename</TableHead>
+              <TableHead className="">Type</TableHead>
               <TableHead className="">File Size</TableHead>
               <TableHead className="">Error Message</TableHead>
-              <TableHead className="">Actions</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
         )}

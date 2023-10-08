@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
-import {type   IdentifiedPerson } from "@/src/utils/middleware/chroma/collection";
+import { type IdentifiedPerson } from "@/src/utils/middleware/chroma/collection";
 
 type Props = {
   people: IdentifiedPerson[];
@@ -20,32 +20,36 @@ type Props = {
 const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
   return (
     <div className="w-full space-y-4 py-2">
-      <h4 className="flex items-center gap-1 text-lg font-semibold">
+      <h2 className="text-4xl uppercase tracking-widest text-primary/60 underline decoration-secondary-foreground/20 underline-offset-4">
+        Results
+      </h2>
+      <div className="flex items-center gap-1 text-lg font-semibold">
         <Badge>{people.length}</Badge>
         <span>Identified People & Extracted Data</span>
-      </h4>
-      {/* <div className="grid grid-cols-2 w-full"> */}
-      {/* <pre>{JSON.stringify(people, null, 2)}</pre> */}
-      <Table className="text-xs">
+      </div>
+      <Table>
         <TableCaption>A list of extracted people in the document.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">#</TableHead>
-            <TableHead className="text-center">Titles</TableHead>
-            <TableHead className="text-center">Firstname</TableHead>
-            <TableHead className="text-center">Middlenames</TableHead>
-            <TableHead className="text-center">Lastname</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Firstname</TableHead>
+            <TableHead>Middlename</TableHead>
+            <TableHead>Lastname</TableHead>
             <TableHead className="text-center" title="Date of Birth">
-              DoB
+              Birthdate
+            </TableHead>
+            <TableHead className="text-center" title="Address">
+              Address
             </TableHead>
             <TableHead className="text-center" title="Social Security Number">
               SSN
             </TableHead>
             <TableHead
-              className="text-center text-xs"
-              title="Driver's License Number"
+              className="text-center"
+              title="Driver's License or State ID Number"
             >
-              DL / State&nbsp;ID
+              ID
             </TableHead>
 
             <TableHead className="text-center" title="Passport Number">
@@ -83,20 +87,6 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
         <TableBody>
           {people.map(
             (person, rowIndex: number) => (
-              // true ||
-              // person.date_of_birth ||
-              // person.social_security_number ||
-              // person.state_id_or_drivers_license ||
-              // person.passport_number ||
-              // person.financial_account_number ||
-              // person.payment_card_number ||
-              // person.username_and_password ||
-              // (person.biometric_data && person.biometric_data?.length > 0) ||
-              // (person.medical_information &&
-              //   person.medical_information?.length > 0) ||
-              // person.medical_record_number ||
-              // (person.health_insurance_info &&
-              //   person.health_insurance_info?.length > 0) ? (
               <TableRow key={rowIndex}>
                 <TableCell className="font-medium">{rowIndex + 1}</TableCell>
                 <TableCell className="flex-1">
@@ -111,27 +101,42 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
                 <TableCell className="flex-1">
                   {person.full_name.lastname}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.date_of_birth && (
                     <ExtractedCellPopover
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.date_of_birth}
+                      name={person.full_name}
+                      type="birthdate"
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
+                  {person.address && (
+                    <ExtractedCellPopover
+                      projectId={projectId}
+                      collectionId={collectionId}
+                      values={person.address}
+                      name={person.full_name}
+                      type="address"
+                    />
+                  )}
+                </TableCell>
+                <TableCell>
                   {person.social_security_number && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.social_security_number}
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.state_id_or_drivers_license && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.state_id_or_drivers_license}
@@ -141,76 +146,86 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
                 <TableCell className="w-12">
                   {person.passport_number && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.passport_number}
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.financial_account_number && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.financial_account_number}
+                      type="financial_account"
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.payment_card_number && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.payment_card_number}
+                      type="payment_card"
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.username_and_password && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.username_and_password}
+                      type="credentials"
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.biometric_data && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.biometric_data}
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.medical_information && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.medical_information}
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.medical_record_number && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.medical_record_number}
                     />
                   )}
                 </TableCell>
-                <TableCell className="">
+                <TableCell>
                   {person.health_insurance_info && (
                     <ExtractedCellPopover
+                      name={person.full_name}
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.health_insurance_info}
                     />
                   )}
                 </TableCell>
-                {/* <TableCell className="text-right">{(person.full_name.confidence).toFixed(2)*100}%</TableCell> */}
               </TableRow>
             ),
             // ) : null,
@@ -218,7 +233,6 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
         </TableBody>
       </Table>
     </div>
-    // </div>
   );
 };
 

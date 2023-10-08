@@ -2,30 +2,31 @@ type SemanticTrigger = {
   title: string;
   relevance_score: number;
 };
-type IdentifiedPerson = {
-  full_name: {
-    firstname: string;
-    middlenames: string;
-    lastname: string;
-    title: string;
-  };
-  date_of_birth?: SemanticTrigger;
-  social_security_number?: SemanticTrigger;
-  // residential_address?: SemanticTrigger;
-  state_id_or_drivers_license?: SemanticTrigger;
-  state_id?: SemanticTrigger;
-  passport_number?: SemanticTrigger;
-  financial_account_number?: SemanticTrigger;
-  payment_card_number?: SemanticTrigger;
-  username_and_password?: SemanticTrigger;
-  email_and_password?: SemanticTrigger;
-  biometric_data?: SemanticTrigger;
-  medical_information?: SemanticTrigger;
-  medical_record_number?: SemanticTrigger;
-  health_insurance_info?: SemanticTrigger;
-};
+// type IdentifiedPerson = {
+//   full_name: {
+//     firstname: string;
+//     middlenames: string;
+//     lastname: string;
+//     title: string;
+//   };
+//   date_of_birth?: SemanticTrigger;
+//   social_security_number?: SemanticTrigger;
+//   // residential_address?: SemanticTrigger;
+//   state_id_or_drivers_license?: SemanticTrigger;
+//   state_id?: SemanticTrigger;
+//   passport_number?: SemanticTrigger;
+//   address?: SemanticTrigger;
+//   financial_account_number?: SemanticTrigger;
+//   payment_card_number?: SemanticTrigger;
+//   username_and_password?: SemanticTrigger;
+//   email_and_password?: SemanticTrigger;
+//   biometric_data?: SemanticTrigger;
+//   medical_information?: SemanticTrigger;
+//   medical_record_number?: SemanticTrigger;
+//   health_insurance_info?: SemanticTrigger;
+// };
 
-type IdentifiedPeople = IdentifiedPerson[];
+// type IdentifiedPeople = IdentifiedPerson[];
 type Credentials = {
   username: string;
   password: string;
