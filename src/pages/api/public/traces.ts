@@ -5,14 +5,15 @@ import { prisma } from "@/src/server/db";
 import { verifyAuthHeaderAndReturnScope } from "@/src/features/public-api/server/apiAuth";
 import { Prisma, type Trace } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
-import { paginationZod } from "@/src/utils/zod";
+import { jsonSchema, paginationZod } from "@/src/utils/zod";
+import { persistEventMiddleware } from "@/src/pages/api/public/event-service";
 
 const CreateTraceSchema = z.object({
   id: z.string().nullish(),
   name: z.string().nullish(),
   externalId: z.string().nullish(),
   userId: z.string().nullish(),
-  metadata: z.unknown().nullish(),
+  metadata: jsonSchema.nullish(),
   release: z.string().nullish(),
   version: z.string().nullish(),
 });
@@ -48,6 +49,7 @@ export default async function handler(
         ", body:",
         JSON.stringify(req.body, null, 2),
       );
+      await persistEventMiddleware(prisma, authCheck.scope.projectId, req);
 
       const { id, name, metadata, externalId, userId, release, version } =
         CreateTraceSchema.parse(req.body);
@@ -137,7 +139,9 @@ export default async function handler(
       const nameCondition = Prisma.sql`AND t."name" = ${obj.name}`;
 
       const [traces, totalItems] = await Promise.all([
-        prisma.$queryRaw<Array<Trace & { observations: string[] }>>(Prisma.sql`
+        prisma.$queryRaw<
+          Array<Trace & { observations: string[]; scores: string[] }>
+        >(Prisma.sql`
           SELECT
             t.id,
             t.timestamp,
@@ -148,9 +152,11 @@ export default async function handler(
             t.user_id as "userId",
             t.release,
             t.version,
-            ARRAY_AGG(o.id) AS "observations"
+            array_remove(array_agg(o.id), NULL) AS "observations",
+            array_remove(array_agg(s.id), NULL) AS "scores"
           FROM "traces" AS t
           LEFT JOIN "observations" AS o ON t.id = o.trace_id
+          LEFT JOIN "scores" AS s ON t.id = s.trace_id
           WHERE t.project_id = ${authCheck.scope.projectId}
           AND o.project_id = ${authCheck.scope.projectId}
           ${obj.userId ? userCondition : Prisma.empty}

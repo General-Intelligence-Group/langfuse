@@ -23,6 +23,7 @@ declare module "next-auth" {
     email?: PrismaUser["email"];
     role?: PrismaUser["role"];
     image?: PrismaUser["image"];
+    admin?: PrismaUser["admin"];
     emailVerified?: PrismaUser["emailVerified"];
     projects: {
       id: PrismaProject["id"];

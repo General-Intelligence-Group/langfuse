@@ -8,8 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
+import { IdentifiedPersonOnDoc } from "@/src/utils/middleware/mongo/Document";
 
-type Props = { people: IdentifiedPeople };
+type Props = { people: IdentifiedPersonOnDoc[] };
 
 
 const IdentifiedPeopleTable = ({ people }: Props) => {
@@ -38,18 +39,18 @@ const IdentifiedPeopleTable = ({ people }: Props) => {
           {people.map((person, rowIndex: number) => (
             <TableRow key={rowIndex}>
               <TableCell className="font-medium">{rowIndex + 1}</TableCell>
-              <TableCell className="flex-1">{person.full_name.title}</TableCell>
+              <TableCell className="flex-1">{person.name.pre}</TableCell>
               <TableCell className="flex-1">
-                {person.full_name.firstname}
+                {person.name.fn}
               </TableCell>
               <TableCell className="flex-1">
-                {person.full_name.middlenames}
+                {person.name.mn}
               </TableCell>
-              {/* <TableCell>{person.full_name.middlenames}</TableCell> */}
+              {/* <TableCell>{person.name.middlenames}</TableCell> */}
               <TableCell className="flex-1">
-                {person.full_name.lastname}
+                {person.name.ln}
               </TableCell>
-              {/* <TableCell className="text-right">{(person.full_name.confidence).toFixed(2)*100}%</TableCell> */}
+              {/* <TableCell className="text-right">{(person.name.confidence).toFixed(2)*100}%</TableCell> */}
             </TableRow>
           ))}
         </TableBody>

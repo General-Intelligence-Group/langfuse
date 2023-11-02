@@ -41,6 +41,8 @@ export default function Layout(props: PropsWithChildren) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const session = useSession();
+  const enableExperimentalFeatures =
+    api.environment.enableExperimentalFeatures.useQuery().data;
 
   const projectId = router.query.projectId as string | undefined;
   const navigation = ROUTES.filter(
@@ -49,7 +51,7 @@ export default function Layout(props: PropsWithChildren) {
     .filter(
       ({ featureFlag }) =>
         featureFlag === undefined ||
-        env.NEXT_PUBLIC_ENABLE_EXPERIMENTAL_FEATURES === "true" ||
+        enableExperimentalFeatures ||
         session.data?.user?.featureFlags[featureFlag],
     )
     .map(({ pathname, ...rest }) => ({
@@ -347,7 +349,7 @@ export default function Layout(props: PropsWithChildren) {
                     <NewProjectButton size="xs" />
                   </div>
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
-                    {projects.data?.map((project) => (
+                    {projects.data?.map((project, index) => (
                       <li key={project.name}>
                         <Link
                           href={`/project/${project.id}`}
@@ -368,7 +370,12 @@ export default function Layout(props: PropsWithChildren) {
                           >
                             <Code />
                           </span>
-                          <span className="truncate">{project.name}</span>
+                          <span
+                            className="truncate"
+                            data-testid={`project-title-span-${index}`}
+                          >
+                            {project.name}
+                          </span>
                           {project.role === "VIEWER" ? (
                             <span
                               className={cn(

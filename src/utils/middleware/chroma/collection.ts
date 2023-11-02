@@ -60,7 +60,8 @@ const dataPointSchema = z.object({
   verified: z.boolean().nullable(),
   value: z
     .object({
-      street_no: z.string().optional().nullable(),
+      street: z.string().optional().nullable(),
+      house_no: z.string().optional().nullable(),
       apartment_no: z.string().optional().nullable(),
       city: z.string().optional().nullable(),
       state: z.string().optional().nullable(),
@@ -126,7 +127,8 @@ export type PaymentCard = z.infer<typeof payCardSchema>;
 const addressSchema = z.object({
   verified: z.boolean().nullable(),
   value: z.object({
-    street_no: z.string().optional().nullable(),
+    street: z.string().optional().nullable(),
+    house_no: z.string().optional().nullable(),
     apartment_no: z.string().optional().nullable(),
     city: z.string().optional().nullable(),
     state: z.string().optional().nullable(),
@@ -145,6 +147,7 @@ export type Address = z.infer<typeof addressSchema>;
 const finAccountSchema = z.object({
   verified: z.boolean().nullable(),
   value: z.object({
+    flag: z.boolean().optional().nullable(),
     financial_account_number: z.string().optional().nullable(),
     account_pin: z.string().optional().nullable(),
     security_code: z.string().optional().nullable(),
@@ -186,6 +189,8 @@ const ownerSchema = z
 export type Owner = z.infer<typeof ownerSchema>;
 export const collectionMetadataSchema = z.object({
   projectId: z.string().max(256).optional(),
+  firstname: z.string().min(2).optional(),
+  lastname: z.string().min(2).optional(),
   title: z.string(),
   description: z.string().max(256),
   steps: z.array(z.boolean()).optional(),
@@ -259,9 +264,9 @@ export const collectionMetadataSchema = z.object({
     .default(1024)
     .optional(),
   chunkOverlap: z.number().min(0).max(1024).default(256).optional(),
-  ingestBatchSize: z.number().min(1).max(25).step(1).default(3).optional(),
-  identBatchSize: z.number().min(1).max(5).step(1).default(3).optional(),
-  extractBatchSize: z.number().min(1).max(10).step(1).default(3).optional(),
+  ingestBatchSize: z.number().min(1).max(200).step(1).default(3).optional(),
+  identBatchSize: z.number().min(1).max(60).step(1).default(3).optional(),
+  extractBatchSize: z.number().min(1).max(40).step(1).default(3).optional(),
   // tags: z.array(knowledgeTagSchema).optional(),
 });
 

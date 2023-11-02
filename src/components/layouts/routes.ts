@@ -1,7 +1,6 @@
 import { type Flag } from "@/src/features/feature-flags/types";
 import {
   Database,
-  FlaskConical,
   LayoutDashboard,
   LifeBuoy,
   LineChart,
@@ -10,9 +9,10 @@ import {
   Settings,
   TextSelect,
   UsersIcon,
+  FlaskConical,
   
 } from "lucide-react";
-import { BuildingLibraryIcon, WrenchScrewdriverIcon, ChatBubbleBottomCenterIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { BuildingLibraryIcon, WrenchScrewdriverIcon, ChatBubbleBottomCenterIcon, MagnifyingGlassIcon,  } from "@heroicons/react/24/solid";
 
 export const ROUTES: Array<{
   name: string;
