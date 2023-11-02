@@ -1,11 +1,13 @@
 import { connectToVectorStore } from "@/src/utils/middleware/chroma";
 import FragmentList from "../../FragmentList";
 import {
-  type FragmentMetadataEntity,
   FragmentService,
 } from "@/src/utils/middleware/chroma/fragment";
 
 import DocumentHeader from "@/src/app/project/[projectId]/knowledge/[collectionName]/document/[documentId]/DocumentHeader";
+// import { DocumentService } from "@/src/utils/middleware/mongo/Document";
+import { connectToMongoDb } from "@/src/utils/middleware/mongo";
+import { DocumentService } from "@/src/utils/middleware/mongo/Document";
 
 // const KnowledgeDocumentPage = ({ searchParams }: Props) => {
 // console.log("searchParams", searchParams);
@@ -27,20 +29,26 @@ const KnowledgeDocumentPage = async ({
   // console.log("searchParams", searchParams);
   const vecStoreClient = connectToVectorStore();
   const fragService = new FragmentService(vecStoreClient);
+  const { client: mongoClient } = await connectToMongoDb({});
+
+  const docService = new DocumentService(mongoClient, projectId);
+  const document = await docService.getDocument({
+    sessionId: collectionName,
+    sourceId: documentId,
+  });
+  
   const fragments = await fragService.getFragments({
     collectionName,
     source_uuid: documentId,
   });
-  // console.log("fragments: ", fragments);
-  let metadata: FragmentMetadataEntity | undefined = undefined;
 
-  if (fragments && fragments.length > 0) {
-    metadata = fragments[0]?.metadata;
-  }
+  // if (fragments && fragments.length > 0) {
+  //   metadata = fragments[0]?.metadata;
+  // }
 
   return (
     <main className="mx-auto max-w-7xl">
-      <DocumentHeader metadata={metadata} />
+      {document && <DocumentHeader metadata={document} />}
       {fragments && (
         <FragmentList
           projectId={projectId}

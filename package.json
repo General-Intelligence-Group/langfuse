@@ -81,6 +81,7 @@
     "langchain": "^0.0.158",
     "lodash": "^4.17.21",
     "lucide-react": "^0.279.0",
+    "mongodb": "^5.9.0",
     "next": "^13.5.4",
     "next-auth": "^4.23.2",
     "next-query-params": "^4.2.3",

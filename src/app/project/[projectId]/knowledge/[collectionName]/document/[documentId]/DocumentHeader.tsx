@@ -6,14 +6,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/src/components/ui/tabs";
-import { type FragmentMetadataEntity } from "@/src/utils/middleware/chroma/fragment";
+import { DocumentDTO } from "@/src/utils/middleware/mongo/Document";
 
-type Props = { metadata: FragmentMetadataEntity | undefined };
+type Props = { metadata: DocumentDTO };
 function DocumentHeader({ metadata }: Props) {
-  let people: IdentifiedPeople = [];
-  if (metadata && metadata.people) {
-    people = JSON.parse(metadata.people) as IdentifiedPeople;
-  }
+  const people  = metadata.people;
+  // let people: IdentifiedPeople = [];
+  // if (metadata && metadata.people) {
+  //   people = JSON.parse(metadata.people) as IdentifiedPeople;
+  // }
   return (
     <header className="p-3">
       <h4 className="flex items-center gap-1 text-xl font-semibold">

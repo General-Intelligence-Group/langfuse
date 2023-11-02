@@ -69,24 +69,32 @@ export async function addCollection(
   };
   const session = await getServerSession(authOptions);
   const knowledgeSetId = randomUUID();
+  // "gdrive_id": "sdf",
+  //   "source": "",
+  //     "title": "",
+  //       "lf_pub": "",
+  //         "lf_priv": "",
+  //           "owner": { "name": "", "id": "" },
+  // "project": ""
+
   const bodyContent = JSON.stringify({
     gdrive_id: gdriveId,
     // model: "gpt-3",
     model: "gpt-4",
     models: models || ["gpt-4", "gpt-4"],
+    source: "",
     // model: "gpt-3.5-turbo-0613",
-    share:
-      "",
+    share: "",
     project: metadata.projectId,
     owner: session?.user,
     title: metadata.title,
     description: metadata.description,
     visibility: metadata.visibility,
     session_id: knowledgeSetId,
-    lf_priv: "sk-lf-86698678-83f8-41db-a3bf-f557fdc5ec61",
-    lf_pub: "pk-lf-3224dd30-8867-4b7d-b009-d628cd9181fd",
+    lf_priv: "sk-lf-cc082d84-83e4-4846-9ed8-7b6803e45983",
+    lf_pub: "pk-lf-d792272e-6643-48a3-9d66-5ac07cdcb5be",
     analysis_step: analysis_step || false,
-    retrieval_break_point: retrievalBreakPoint || 3,
+    retrieval_break_point: retrievalBreakPoint || 0,
     embeddings_size: embeddingsSize || 1024,
     chunk_overlap: chunkOverlap || 256 + 128,
     dob_distance_threshold: thresholds[1],

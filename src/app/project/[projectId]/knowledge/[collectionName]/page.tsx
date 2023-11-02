@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 import CollectionList from "./CollectionList";
 import { authOptions } from "@/src/server/auth";
 import { connectToVectorStore } from "@/src/utils/middleware/chroma";
-import { CollectionService } from "@/src/utils/middleware/chroma/collection";
+import {
+  CollectionService,
+  // IdentifiedPerson,
+} from "@/src/utils/middleware/chroma/collection";
 import {
   type DocumentDTO,
   DocumentService,
@@ -14,6 +17,8 @@ import ExtractedPeopleTable from "@/src/app/project/[projectId]/knowledge/[colle
 import { Badge } from "@/src/components/ui/badge";
 import { v4 as uuidv4 } from "uuid";
 import { type Metadata } from "next";
+import { connectToMongoDb } from "@/src/utils/middleware/mongo";
+import { ResultService } from "@/src/utils/middleware/mongo/ExtractionResults";
 const vecStoreClient = connectToVectorStore();
 
 export interface DocumentMetadata {
@@ -78,25 +83,40 @@ const CollectionPage = async ({
     redirect(`/knowledge`);
   }
 
-  const extractedPeople = metadata?.people;
-  const filteredPeople = extractedPeople
-    ? extractedPeople.filter(
-        (person) =>
-          person.date_of_birth ||
-          person.social_security_number ||
-          person.state_id_or_drivers_license ||
-          person.passport_number ||
-          person.financial_account_number ||
-          person.payment_card_number ||
-          person.username_and_password ||
-          (person.biometric_data && person.biometric_data.length > 0) ||
-          (person.medical_information &&
-            person.medical_information.length > 0) ||
-          person.medical_record_number ||
-          (person.health_insurance_info &&
-            person.health_insurance_info.length > 0),
-      )
-    : [];
+  // const { collection: documentsCollection } = await connectToMongoDb({
+  //   dbName: projectId,
+  //   collectionName: "extraction_results",
+  // });
+
+  // const documentsMongo = await documentsCollection?.find({}).toArray();
+  
+
+  const { client } = await connectToMongoDb({
+    // dbName: ,
+    // collectionName: "extraction_results",
+  });
+  const resultsService = new ResultService(client, projectId);
+  const extractionResults = await resultsService.getResults({sessionId: collectionName, filtered: true})
+  // IdentifiedPerson
+  // const extractedPeople = metadata?.people;
+  // const filteredPeople = extractedPeople
+  //   ? extractedPeople.filter(
+  //       (person) =>
+  //         person.date_of_birth ||
+  //         person.social_security_number ||
+  //         person.state_id_or_drivers_license ||
+  //         person.passport_number ||
+  //         person.financial_account_number ||
+  //         person.payment_card_number ||
+  //         person.username_and_password ||
+  //         (person.biometric_data && person.biometric_data.length > 0) ||
+  //         (person.medical_information &&
+  //           person.medical_information.length > 0) ||
+  //         person.medical_record_number ||
+  //         (person.health_insurance_info &&
+  //           person.health_insurance_info.length > 0),
+  //     )
+  //   : [];
 
   return (
     <main className="flex h-full w-full flex-1 flex-col items-center justify-between gap-5 pt-4">
@@ -134,11 +154,15 @@ const CollectionPage = async ({
             />
           </>
         )}
-        {filteredPeople && filteredPeople.length > 0 && (
+        {/* <div>
+          ProjectId: {projectId}
+          <pre>{JSON.stringify(extractionResults, null, 2)}</pre>
+        </div> */}
+        {extractionResults && extractionResults.length > 0 && (
           <ExtractedPeopleTable
             projectId={projectId}
             collectionId={collectionName}
-            people={filteredPeople}
+            results={extractionResults}
           />
         )}
         <h2 className="mb-3 text-4xl uppercase tracking-widest text-primary/60 underline decoration-secondary-foreground/20 underline-offset-4">

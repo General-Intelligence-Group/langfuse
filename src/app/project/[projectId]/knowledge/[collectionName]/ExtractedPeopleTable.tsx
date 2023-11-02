@@ -9,22 +9,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
-import { type IdentifiedPerson } from "@/src/utils/middleware/chroma/collection";
+import { type ResultDTO } from "@/src/utils/middleware/mongo/ExtractionResults";
 
 type Props = {
-  people: IdentifiedPerson[];
+  results: ResultDTO[];
   projectId: string;
   collectionId: string;
 };
 
-const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
+const ExtractedPeopleTable = ({ results, projectId, collectionId }: Props) => {
   return (
     <div className="w-full space-y-4 py-2">
       <h2 className="text-4xl uppercase tracking-widest text-primary/60 underline decoration-secondary-foreground/20 underline-offset-4">
         Results
       </h2>
       <div className="flex items-center gap-1 text-lg font-semibold">
-        <Badge>{people.length}</Badge>
+        <Badge>{results.length}</Badge>
         <span>Identified People & Extracted Data</span>
       </div>
       <Table>
@@ -85,30 +85,30 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {people.map(
+          {results.map(
             (person, rowIndex: number) => (
               <TableRow key={rowIndex}>
                 <TableCell className="font-medium">{rowIndex + 1}</TableCell>
                 <TableCell className="flex-1">
-                  {person.full_name.title}
+                  {person.name.pre}
                 </TableCell>
                 <TableCell className="flex-1">
-                  {person.full_name.firstname}
+                  {person.name.fn}
                 </TableCell>
                 <TableCell className="flex-1">
-                  {person.full_name.middlenames}
+                  {person.name.mn}
                 </TableCell>
                 <TableCell className="flex-1">
-                  {person.full_name.lastname}
+                  {person.name.ln}
                 </TableCell>
                 <TableCell>
-                  {person.date_of_birth && (
+                  {person.dob && (
                     <ExtractedCellPopover
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.date_of_birth}
-                      name={person.full_name}
-                      type="birthdate"
+                      values={person.dob}
+                      name={person.name}
+                      type="dob"
                     />
                   )}
                 </TableCell>
@@ -118,111 +118,111 @@ const ExtractedPeopleTable = ({ people, projectId, collectionId }: Props) => {
                       projectId={projectId}
                       collectionId={collectionId}
                       values={person.address}
-                      name={person.full_name}
+                      name={person.name}
                       type="address"
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.social_security_number && (
+                  {person.ssn && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.social_security_number}
+                      values={person.ssn}
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.state_id_or_drivers_license && (
+                  {person.stateId && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.state_id_or_drivers_license}
+                      values={person.stateId}
                     />
                   )}
                 </TableCell>
                 <TableCell className="w-12">
-                  {person.passport_number && (
+                  {person.pass && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.passport_number}
+                      values={person.pass}
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.financial_account_number && (
+                  {person.acc && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.financial_account_number}
+                      values={person.acc}
                       type="financial_account"
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.payment_card_number && (
+                  {person.pay && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.payment_card_number}
+                      values={person.pay}
                       type="payment_card"
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.username_and_password && (
+                  {person.cred && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.username_and_password}
+                      values={person.cred}
                       type="credentials"
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.biometric_data && (
+                  {person.bio && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.biometric_data}
+                      values={person.bio}
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.medical_information && (
+                  {person.med && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.medical_information}
+                      values={person.med}
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.medical_record_number && (
+                  {person.mrn && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.medical_record_number}
+                      values={person.mrn}
                     />
                   )}
                 </TableCell>
                 <TableCell>
-                  {person.health_insurance_info && (
+                  {person.health && (
                     <ExtractedCellPopover
-                      name={person.full_name}
+                      name={person.name}
                       projectId={projectId}
                       collectionId={collectionId}
-                      values={person.health_insurance_info}
+                      values={person.health}
                     />
                   )}
                 </TableCell>

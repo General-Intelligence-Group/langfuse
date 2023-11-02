@@ -1,7 +1,7 @@
 import { Badge } from "@/src/components/ui/badge";
-import { type FragmentMetadataEntity } from "@/src/utils/middleware/chroma/fragment";
 
-type Props = { metadata: FragmentMetadataEntity };
+import { DocumentDTO } from "@/src/utils/middleware/mongo/Document";
+type Props = { metadata: DocumentDTO };
 
 function FragmentMetadataInfoBox({ metadata }: Props) {
   const {
@@ -73,10 +73,10 @@ function FragmentMetadataInfoBox({ metadata }: Props) {
           )}
           {lang && (
             <p className="flex w-full items-center gap-2">
-              <span className="whitespace-nowrap font-medium">Sent to:</span>
+              <span className="whitespace-nowrap font-medium">Lang:</span>
               <ul className="flex flex-wrap gap-1">
                 <Badge className="whitespace-nowrap">
-                  {lang}
+                  {lang.locale}
                 </Badge>
               </ul>
             </p>

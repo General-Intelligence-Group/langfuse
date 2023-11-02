@@ -69,7 +69,11 @@ const STEPS: Steps = [
     title: "Ingestion",
     text: "Read Files & Embed Text Documents & Metadata found in Google Drive Folder.",
   },
-  { id: "id", title: "Identification", text: "Identify people with NER on-the-fly." },
+  {
+    id: "id",
+    title: "Identification",
+    text: "Identify people with NER on-the-fly.",
+  },
   {
     id: "nppi_extract",
     title: "Flagging & Extraction",
@@ -113,13 +117,13 @@ const AddCollection = ({
     resolver: zodResolver(collectionMetadataSchema),
     defaultValues: {
       steps: Array(8).fill(true),
-      ingestBatchSize: 25,
-      identBatchSize: 5,
-      extractBatchSize: 2,
+      ingestBatchSize: 1, //32,
+      identBatchSize: 30,
+      extractBatchSize: 20,
       visibility: "private",
-      title: "TestSet",
-      description: "E-Mails & PDFs",
-      gdriveId: "1idOAvCWQ1fpPBXJ_TrZtZiZfvpE9_oVa", // SightPath "1idOAvCWQ1fpPBXJ_TrZtZiZfvpE9_oVa", // Test
+      title: "OFCU Devide",
+      description: "E-Mails",
+      gdriveId: "15dwewu2nH9UHV6uFbj6AU5Es8TbjtPrX", // "11AshkKx04WZHyfSvDfy7_hx8vLeFT07g", // Complete: "1JwrCr4u4RUlQjBcmfdnapxNo3SIbSnJY", // SightPath "1idOAvCWQ1fpPBXJ_TrZtZiZfvpE9_oVa", // Test
       // "1qHal3QvY83G1UnEBDsJNNvJ0rQFN6s_Q", //"1idOAvCWQ1fpPBXJ_TrZtZiZfvpE9_oVa", //"1kishbsoUM7T_r8Zud9c6cRqUPRpYxhZp", // "1mkW3UBDNHJlYWKS3GI2s16cjxsryGj5m",
       retrievalBreakPoint: 0,
       ident_model: "gpt-3",
@@ -127,7 +131,7 @@ const AddCollection = ({
       embedding_model: "openai",
       analysis_step: true,
       general_distance_threshold: 0,
-      embeddingsSize: 1 * 1024 + 1 * 256 + 1 * 128,
+      embeddingsSize: 1024,
       chunkOverlap: 512, // ,
       dob_distance_threshold: 55,
       ssn_distance_threshold: 47,
@@ -319,6 +323,42 @@ const AddCollection = ({
                 setTags={setTags}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="firstname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      placeholder="Collection Title"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      placeholder="Collection Title"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           <div>
             <FormField
@@ -403,7 +443,7 @@ const AddCollection = ({
                                             type="number"
                                             step={1}
                                             defaultValue={field.value}
-                                            max={25}
+                                            max={120}
                                             min={1}
                                             onChange={(e) => {
                                               // Convert the input value to a number using parseInt
@@ -540,7 +580,7 @@ const AddCollection = ({
                                             type="number"
                                             step={1}
                                             defaultValue={field.value}
-                                            max={5}
+                                            max={60}
                                             min={1}
                                             onChange={(e) => {
                                               // Convert the input value to a number using parseInt
@@ -649,7 +689,7 @@ const AddCollection = ({
                                             type="number"
                                             step={1}
                                             defaultValue={field.value}
-                                            max={10}
+                                            max={40}
                                             min={1}
                                             onChange={(e) => {
                                               // Convert the input value to a number using parseInt
