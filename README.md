@@ -36,7 +36,7 @@
       <a href="https://discord.gg/7NXusRtqYU"><img src="https://img.shields.io/discord/1111061815649124414?style=flat-square&logo=Discord&logoColor=white&label=Discord&color=%23434EE4" alt="Discord"></a>
       <a href="https://github.com/langfuse/langfuse"><img src="https://img.shields.io/github/stars/langfuse/langfuse?style=flat-square&logo=GitHub&label=langfuse%2Flangfuse" alt="Github Repo Stars"></a>
       <a href="https://github.com/langfuse/langfuse/actions/workflows/pipeline.yml?query=branch:main"><img src="https://img.shields.io/github/actions/workflow/status/langfuse/langfuse/pipeline.yml?style=flat-square&label=All%20tests" alt="CI test status"></a>
-      <a href="https://status.langfuse.com"><img src="https://api.checklyhq.com/v1/badges/checks/62f11f82-33c0-40c1-a704-7b57518da517?style=flat-square&theme=default&responseTime=true" alt="Checkly Status"></a>
+      <a href="https://status.langfuse.com"><img src="https://uptime.betterstack.com/status-badges/v1/monitor/udlc.svg" alt="Uptime Status"/></a>
       <a href="https://www.ycombinator.com/companies/langfuse"><img src="https://img.shields.io/badge/Y%20Combinator-W23-orange?style=flat-square" alt="Y Combinator W23"></a>
       <a href="https://github.com/langfuse/langfuse/pkgs/container/langfuse"><img alt="Docker Image" src="https://img.shields.io/badge/docker-langfuse-blue?logo=Docker&logoColor=white&style=flat-square"></a>
       <a href="https://www.npmjs.com/package/langfuse"><img src="https://img.shields.io/npm/v/langfuse?style=flat-square&label=npm+langfuse" alt="langfuse npm package"></a>
@@ -98,7 +98,7 @@ Links: [Create account](https://cloud.langfuse.com), [learn more](https://cloud.
 
 #### Localhost
 
-Requirements: Docker, Node.js >=18, npm
+Requirements: docker, docker compose (e.g. using Docker Desktop)
 
 ```bash
 # Clone repository
@@ -107,16 +107,27 @@ cd langfuse
 
 # Run server and database
 docker compose up -d
-
-# Apply db migrations
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres DIRECT_URL=postgresql://postgres:postgres@localhost:5432/postgres npx prisma migrate deploy
 ```
 
 #### Self-host (Docker)
 
 [→ Instructions](https://langfuse.com/docs/deployment/self-host)
 
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/gmbqa_)
+
 ### Step 2: Data ingestion
+
+#### SDKs to instrument application
+
+Fully async, typed SDKs to instrument any LLM application. Currently available for Python & JS/TS.
+
+→ [Guide](https://langfuse.com/docs/guides/sdk-integration) with an example of how the SDK can be used
+
+| Package                                                                                                                                             | Description                      | Links                                                                                                          |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [![PyPI Version](https://img.shields.io/pypi/v/langfuse.svg?style=flat-square&label=pypi+langfuse)](https://pypi.python.org/pypi/langfuse)          | Python                           | [docs](https://langfuse.com/docs/integrations/sdk/python), [repo](https://github.com/langfuse/langfuse-python) |
+| [![npm Version](https://img.shields.io/npm/v/langfuse?style=flat-square&label=npm+langfuse)](https://www.npmjs.com/package/langfuse)                | JS/TS: Node >= 18, Edge runtimes | [docs](https://langfuse.com/docs/integrations/sdk/typescript), [repo](https://github.com/langfuse/langfuse-js) |
+| [![npm package](https://img.shields.io/npm/v/langfuse-node?style=flat-square&label=npm+langfuse-node)](https://www.npmjs.com/package/langfuse-node) | JS/TS: Node <18                  | [docs](https://langfuse.com/docs/integrations/sdk/typescript), [repo](https://github.com/langfuse/langfuse-js) |
 
 #### Langchain applications
 
@@ -148,19 +159,7 @@ chain.run(input="<user_input", callbacks=[handler])
 
 → [Langchain integration docs for JS/TS](https://langfuse.com/docs/integrations/langchain/typescript)
 
-#### SDKs to manually instrument application
-
-Fully async, typed SDKs to instrument any LLM application. Currently available for Python & JS/TS.
-
-→ [Guide](https://langfuse.com/docs/guides/sdk-integration) with an example of how the SDK can be used
-
-| Package                                                                                                                                             | Description                      | Links                                                                                                          |
-| --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| [![PyPI Version](https://img.shields.io/pypi/v/langfuse.svg?style=flat-square&label=pypi+langfuse)](https://pypi.python.org/pypi/langfuse)          | Python                           | [docs](https://langfuse.com/docs/integrations/sdk/python), [repo](https://github.com/langfuse/langfuse-python) |
-| [![npm Version](https://img.shields.io/npm/v/langfuse?style=flat-square&label=npm+langfuse)](https://www.npmjs.com/package/langfuse)                | JS/TS: Node >= 18, Edge runtimes | [docs](https://langfuse.com/docs/integrations/sdk/typescript), [repo](https://github.com/langfuse/langfuse-js) |
-| [![npm package](https://img.shields.io/npm/v/langfuse-node?style=flat-square&label=npm+langfuse-node)](https://www.npmjs.com/package/langfuse-node) | JS/TS: Node <18                  | [docs](https://langfuse.com/docs/integrations/sdk/typescript), [repo](https://github.com/langfuse/langfuse-js) |
-
-### Add scores/evaluations to traces (optional)
+#### Add scores/evaluations to traces (optional)
 
 Quality/evaluation of traces is tracked via scores ([docs](https://langfuse.com/docs/scores)). Scores are related to traces and optionally to observations. Scores can be added via:
 
@@ -265,9 +264,6 @@ docker-compose pull
 
 # Run server and db
 docker compose up -d
-
-# Apply db migrations
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres DIRECT_URL=postgresql://postgres:postgres@localhost:5432/postgres npx prisma migrate deploy
 ```
 
 ### Run Langfuse in CI for integration tests

@@ -1,5 +1,5 @@
-import { env } from "@/src/env.mjs";
 import { type Flag } from "@/src/features/feature-flags/types";
+import { api } from "@/src/utils/api";
 import { useSession } from "next-auth/react";
 
 export const FeatureFlagToggle = (props: {
@@ -9,9 +9,10 @@ export const FeatureFlagToggle = (props: {
   whenLoading?: React.ReactNode;
 }) => {
   const session = useSession();
+  const enableExperimentalFeatures =
+    api.environment.enableExperimentalFeatures.useQuery().data;
 
-  if (env.NEXT_PUBLIC_ENABLE_EXPERIMENTAL_FEATURES === "true")
-    return props.whenEnabled ?? <></>;
+  if (enableExperimentalFeatures) return props.whenEnabled ?? <></>;
 
   const flags = session.data?.user?.featureFlags;
   const isEnabled = flags !== undefined && flags[props.featureFlag];

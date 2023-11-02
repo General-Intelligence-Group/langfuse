@@ -6,6 +6,7 @@ import { ApiKeyList } from "@/src/features/public-api/components/ApiKeyList";
 import { useRouter } from "next/router";
 import { Code, Bird, GraduationCap } from "lucide-react";
 import { ProjectMembersTable } from "@/src/features/rbac/components/ProjectMembersTable";
+import { DeleteProjectButton } from "@/src/features/projects/components/DeleteProjectButton";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function SettingsPage() {
         <ProjectMembersTable projectId={projectId} />
         <ApiKeyList projectId={projectId} />
         <Instructions />
+        <DeleteProjectButton projectId={projectId} />
       </div>
     </div>
   );
@@ -83,7 +85,7 @@ function Instructions() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-gray-900">
-                  <a href={item.href} target="_blank">
+                  <a href={item.href} target="_blank" rel="noreferrer noopener">
                     <span className="absolute inset-0" aria-hidden="true" />
                     {item.name}
                   </a>
